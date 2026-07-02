@@ -6,10 +6,13 @@ repositorio.
 ## Sobre el curso
 
 Curso de 2 mañanas para biólogos y ecólogos sin experiencia previa
-en programación ni terminal. El hilo conductor es reproducir
-PERMANOVA (Anderson, 2001) en Python: cada participante dirige al
-agente para implementar el algoritmo, calcular los estadísticos del
-paper y reproducir sus figuras.
+en programación ni terminal. El hilo conductor es reproducir el
+análisis de Neilson et al. (2017) sobre el efecto de la aridez en
+el microbioma de suelo del desierto de Atacama: cada participante
+dirige al agente para calcular métricas de diversidad y
+composición microbiana, obtener las correlaciones (Spearman) entre
+aridez/humedad relativa del suelo y esas métricas, y reproducir
+las figuras del paper.
 
 ## Reglas para el agente
 
@@ -33,15 +36,25 @@ paper y reproducir sus figuras.
 curso-analisis-claude/
 ├── CLAUDE.md
 ├── README.md
+├── docs/
+│   ├── programa_curso_vJulio2026.pdf
+│   ├── pasos_curso_manana1.md
+│   └── pasos_curso_manana2.md
 ├── paper/
-│   ├── Anderson2001.pdf
-│   └── resumen_algoritmo.md
+│   └── mSystems.00195-16.pdf
 ├── data/
-│   └── macroinvertebrados.csv
+│   └── datos_atacama.csv
 └── expected_outputs/
-    ├── pcoa_paper.png
-    └── tabla_permanova_paper.csv
+    ├── diversidad_vs_aridez.png
+    └── tabla_correlaciones_paper.csv
 ```
+
+`docs/programa_curso_vJulio2026.pdf` es el programa oficial del
+curso (horario y contenidos por módulo). `docs/pasos_curso_manana1.md`
+y `docs/pasos_curso_manana2.md` traducen ese programa en una
+checklist orientada a participantes, una por cada mañana; por
+ahora solo la Mañana 2 está detallada, la Mañana 1 es un esqueleto
+pendiente de completar.
 
 Cada participante trabaja en su propio branch personal, con su
 propio `CLAUDE.md` personalizado, `solution.py` y carpeta
@@ -49,5 +62,8 @@ propio `CLAUDE.md` personalizado, `solution.py` y carpeta
 
 ## Paper base
 
-Anderson, M.J. (2001). A new method for non-parametric
-multivariate analysis of variance. Austral Ecology, 26(1): 32–46.
+Neilson, J.W., Califf, K., Cardona, C., Copeland, A., van Treuren,
+W., Josephson, K.L., Knight, R., Gilbert, J.A., Quade, J.,
+Caporaso, J.G., Maier, R.M. (2017). Significant Impacts of
+Increasing Aridity on the Arid Soil Microbiome. mSystems, 2(3):
+e00195-16.
