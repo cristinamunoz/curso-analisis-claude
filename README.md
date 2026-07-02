@@ -54,11 +54,32 @@ el análisis del curso:
 
 - [`abundancias.csv`](data/abundancias.csv) — tabla de abundancias
   de OTUs (una fila por OTU, una columna por muestra de suelo),
-  exportada desde el archivo `.biom` original del estudio.
+  exportada desde el archivo `.biom` original del estudio. Pese a
+  la extensión `.csv`, está separada por tabs. 1 109 OTUs × 54
+  muestras.
+
+  ```
+  # Constructed from biom file
+  #OTU ID    BAQ2420.1.1  BAQ2420.1.2  BAQ2420.1.3  BAQ2420.2  BAQ2420.3  ...
+  409faa5f5353e543bf6d99125c7c0e83  0.0  0.0  0.0    0.0    0.0  ...
+  1237d5925a7176fced9dda961a86c684  0.0  0.0  13.0   103.0  0.0  ...
+  ```
+
 - [`metadata.tsv`](data/metadata.tsv) — metadata de cada muestra:
   transecto, sitio, variables ambientales (pH, humedad relativa del
   suelo, temperatura, elevación, vegetación, etc.) necesarias para
-  correlacionar con la diversidad/composición microbiana.
+  correlacionar con la diversidad/composición microbiana. 74
+  muestras × 21 columnas.
+
+  ```
+  sample-id    barcode-sequence  elevation  ...  transect-name  site-name  ...
+  #q2:types    categorical       numeric    ...  categorical    categorical ...
+  BAQ1370.1.2  GCCCAAGTTCAC      1370       ...  Baquedano      BAQ1370    ...
+  BAQ1370.3    GCGCCGAATCTT      1370       ...  Baquedano      BAQ1370    ...
+  ```
+
+  La segunda fila (`#q2:types`) es metadata de tipo de columna para
+  QIIME 2, no una muestra.
 
 ### [`expected_outputs/`](expected_outputs/)
 

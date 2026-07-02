@@ -43,10 +43,9 @@ curso-analisis-claude/
 ├── paper/
 │   └── mSystems.00195-16.pdf
 ├── data/
-│   └── datos_atacama.csv
+│   ├── abundancias.csv
+│   └── metadata.tsv
 └── expected_outputs/
-    ├── diversidad_vs_aridez.png
-    └── tabla_correlaciones_paper.csv
 ```
 
 `docs/programa_curso_vJulio2026.pdf` es el programa oficial del
