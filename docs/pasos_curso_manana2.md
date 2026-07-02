@@ -34,9 +34,13 @@ respondiendo y qué datos tienes disponibles para hacerlo.
    no hay prompts predefinidos, tú decides el camino.
 2. Foco sugerido por el programa:
    - Diversidad alfa (riqueza, Shannon, etc.) vs. gradiente
-     ambiental (aridez / humedad relativa del suelo).
-   - Composición de comunidades (por ejemplo, abundancia relativa
-     por phylum a lo largo del gradiente).
+     ambiental (aridez / humedad relativa del suelo). Usa
+     correlación de Spearman, el mismo método que el paper.
+   - Composición de comunidades a nivel de OTU: abundancia relativa
+     de los OTUs más comunes a lo largo del gradiente, y/o
+     diversidad beta (ordenación NMDS/PCoA con distancia
+     Bray-Curtis entre muestras) — el mismo enfoque que usa el
+     paper en su Fig. S2.
 3. Pide plan antes de que el agente ejecute código (regla del
    `CLAUDE.md`) y confírmalo explícitamente en cada paso.
 4. Si te atascas en la lógica científica (no en el código), pide
@@ -54,8 +58,8 @@ diversidad/composición con el gradiente de aridez.
 ### Módulo 9 · Visualización y cierre del análisis (11:00–12:00)
 
 1. Pide al agente que genere las figuras que mejor representen tus
-   hallazgos (por ejemplo, diversidad vs. aridez, composición por
-   phylum).
+   hallazgos (por ejemplo, diversidad vs. aridez, ordenación de
+   comunidades por OTU).
 2. Compara tus resultados con los de referencia en
    `expected_outputs/` — la pregunta guía no es "¿son idénticos?"
    sino **¿coincide la dirección del efecto?**

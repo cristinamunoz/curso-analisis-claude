@@ -43,10 +43,15 @@ curso-analisis-claude/
 ├── paper/
 │   └── mSystems.00195-16.pdf
 ├── data/
-│   ├── abundancias.csv
+│   ├── abundancias.tsv
 │   └── metadata.tsv
 └── expected_outputs/
 ```
+
+`data/abundancias.tsv` y `data/metadata.tsv` están separados por
+tabs. Solo 54 de las 75 muestras en `metadata.tsv` tienen
+secuenciación en `abundancias.tsv` — filtrar por la intersección de
+IDs antes de cruzar ambos archivos.
 
 `docs/programa_curso_vJulio2026.pdf` es el programa oficial del
 curso (horario y contenidos por módulo). `docs/pasos_curso_manana1.md`
