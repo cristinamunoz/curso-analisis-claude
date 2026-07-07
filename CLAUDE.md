@@ -84,6 +84,13 @@ curso-analisis-claude/
 │   ├── abundancias.tsv
 │   └── metadata.tsv
 └── expected_outputs/
+    ├── fig1_shannon_por_transecto.png / .pdf
+    ├── fig1_shannon_vs_avgsoilrh.png / .pdf
+    ├── fig2_pcoa_braycurtis.png / .pdf
+    ├── h1_correlacion_shannon_vs_humedad.tsv
+    ├── h1_resumen_shannon_por_transecto.tsv
+    ├── h2_varianza_explicada_pcoa.tsv
+    └── h3_permanova_variables_ambientales.tsv
 ```
 
 `docs/programa_curso_vJulio2026.pdf` es el programa oficial del
@@ -116,10 +123,13 @@ en `abundancias.tsv` (las 21 restantes quedaron sin datos de
 abundancia) — al cruzar ambos archivos, filtrar por la
 intersección de IDs, no asumir que coinciden 1 a 1.
 
-`expected_outputs/` es la carpeta destino de las figuras y tablas
-de referencia contra las que cada participante compara sus propios
-resultados. **Por ahora está vacía**, pendiente de que los
-instructores agreguen los outputs validados antes del curso.
+`expected_outputs/` contiene las figuras y tablas de referencia
+contra las que cada participante compara sus propios resultados,
+cubriendo H1 (Shannon vs. humedad relativa), H2 (PCoA Bray-Curtis)
+y H3 (PERMANOVA univariada de humedad, temperatura y elevación).
+Generadas con `generate_expected_outputs.py` (fuera de este
+listado porque vive en la raíz del branch de instructores, no en
+esta carpeta).
 
 Cada participante trabaja en su propio branch personal, con su
 propio `CLAUDE.md` personalizado, un script `solution.py`, y una
@@ -139,8 +149,11 @@ análisis del día 2:
 | `elevation` | Elevación del sitio en metros |
 | `vegetation` | Presencia/ausencia de vegetación |
 
-Rangos esperados de AvgSoilRH: ~5–15 % en Yungay (hiperárido),
-~30–40 % en Baquedano (con vegetación).
+Nota: `average-soil-relative-humidity` en `data/metadata.tsv` va de
+~15 % a 100 % en ambos transectos (medias similares entre
+Baquedano ~64 % y Yungay ~67 %) — más amplio y solapado de lo que
+se podría anticipar por la aridez relativa de cada transecto. No
+asumas rangos estrechos por transecto al validar resultados.
 
 ## Skills
 

@@ -26,6 +26,13 @@ curso-analisis-claude/
 │   ├── abundancias.tsv
 │   └── metadata.tsv
 └── expected_outputs/
+    ├── fig1_shannon_por_transecto.png / .pdf
+    ├── fig1_shannon_vs_avgsoilrh.png / .pdf
+    ├── fig2_pcoa_braycurtis.png / .pdf
+    ├── h1_correlacion_shannon_vs_humedad.tsv
+    ├── h1_resumen_shannon_por_transecto.tsv
+    ├── h2_varianza_explicada_pcoa.tsv
+    └── h3_permanova_variables_ambientales.tsv
 ```
 
 ### [`docs/`](docs/)
@@ -82,9 +89,31 @@ el análisis del curso:
 
 ### [`expected_outputs/`](expected_outputs/)
 
-Carpeta destino para figuras y tablas de referencia contra las
-cuales cada participante compara sus propios resultados
-(actualmente vacía, pendiente de agregar los outputs esperados).
+Figuras y tablas de referencia contra las cuales cada participante
+compara sus propios resultados. Cubren las tres hipótesis del
+curso (ver [`CLAUDE.md`](CLAUDE.md)):
+
+- **H1 — diversidad alfa vs. humedad relativa del suelo**:
+  [`fig1_shannon_por_transecto.png`](expected_outputs/fig1_shannon_por_transecto.png)
+  (boxplot Shannon por transecto),
+  [`fig1_shannon_vs_avgsoilrh.png`](expected_outputs/fig1_shannon_vs_avgsoilrh.png)
+  (dispersión con regresión),
+  [`h1_resumen_shannon_por_transecto.tsv`](expected_outputs/h1_resumen_shannon_por_transecto.tsv)
+  y
+  [`h1_correlacion_shannon_vs_humedad.tsv`](expected_outputs/h1_correlacion_shannon_vs_humedad.tsv)
+  (Spearman ρ, p-valor, n).
+- **H2 — ordenación de comunidades (PCoA Bray-Curtis)**:
+  [`fig2_pcoa_braycurtis.png`](expected_outputs/fig2_pcoa_braycurtis.png)
+  (PC1 vs. PC2, color = humedad relativa del suelo) y
+  [`h2_varianza_explicada_pcoa.tsv`](expected_outputs/h2_varianza_explicada_pcoa.tsv)
+  (% de varianza por eje).
+- **H3 — variables ambientales que explican la composición**:
+  [`h3_permanova_variables_ambientales.tsv`](expected_outputs/h3_permanova_variables_ambientales.tsv)
+  (PERMANOVA univariada de humedad, temperatura y elevación —
+  F, R², p-valor, 999 permutaciones).
+
+Cada PNG tiene su versión vectorial en PDF. Generados con
+`generate_expected_outputs.py` (entorno en `requirements.txt`).
 
 ## Branches personales
 
