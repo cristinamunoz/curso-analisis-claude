@@ -78,14 +78,32 @@ def resumen_por_transecto(diversidad):
     return resumen
 
 
+def asteriscos_por_p_valor(p_valor):
+    """Convierte un p-valor en su notacion de asteriscos habitual."""
+    if p_valor < 0.001:
+        return "***"
+    if p_valor < 0.01:
+        return "**"
+    if p_valor < 0.05:
+        return "*"
+    return "ns"
+
+
 def graficar_boxplot_por_transecto(diversidad):
-    """Boxplot de riqueza, Shannon y Simpson por transecto."""
+    """Boxplot de riqueza, Shannon y Simpson por transecto, con
+    prueba de Mann-Whitney U (Baquedano vs. Yungay) y asteriscos
+    de significancia sobre cada panel."""
     metricas = ["richness", "shannon", "simpson"]
     etiquetas = {
         "richness": "Richness (número de OTUs)",
         "shannon": "Shannon diversity index",
         "simpson": "Simpson diversity index",
     }
+    baquedano = diversidad[
+        diversidad["transect-name"] == "Baquedano"
+    ]
+    yungay = diversidad[diversidad["transect-name"] == "Yungay"]
+
     fig, ejes = plt.subplots(1, 3, figsize=(8, 6))
     for eje, metrica in zip(ejes, metricas):
         sns.boxplot(
@@ -97,6 +115,20 @@ def graficar_boxplot_por_transecto(diversidad):
             legend=False,
             ax=eje,
         )
+        _, p_valor = stats.mannwhitneyu(
+            baquedano[metrica], yungay[metrica]
+        )
+        etiqueta_significancia = asteriscos_por_p_valor(p_valor)
+        y_maximo = diversidad[metrica].max()
+        y_linea = y_maximo * 1.05
+        eje.plot([0, 0, 1, 1], [y_linea, y_linea * 1.02,
+                                 y_linea * 1.02, y_linea],
+                 color="black", linewidth=1)
+        eje.text(
+            0.5, y_linea * 1.02, etiqueta_significancia,
+            ha="center", va="bottom",
+        )
+        eje.set_ylim(top=y_linea * 1.1)
         eje.set_xlabel("Transect")
         eje.set_ylabel(etiquetas[metrica])
         eje.set_title(etiquetas[metrica])
