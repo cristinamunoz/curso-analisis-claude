@@ -14,9 +14,7 @@ repositorio.
 
 ## ✏️ Quién soy
 
-<!-- Reemplaza este bloque con tu información antes del día 2 -->
-
-Soy ecóloga/o microbiana/o. No tengo experiencia previa en
+Soy bióloga marina. No tengo experiencia previa en
 programación ni en Python. Tengo conocimientos básicos de
 estadística (regresión, correlación) y de ecología de comunidades.
 Necesito que me expliques los resultados en lenguaje biológico
