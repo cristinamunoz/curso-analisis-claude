@@ -3,6 +3,25 @@
 Contexto base que el agente debe leer antes de trabajar en este
 repositorio.
 
+---
+
+> **Nota para participantes del curso:** las secciones marcadas con ✏️
+> son las que debes personalizar en tu branch antes del día 2. Las
+> demás secciones son comunes a todos los participantes — puedes
+> usarlas tal como están o extenderlas.
+
+---
+
+## ✏️ Quién soy
+
+<!-- Reemplaza este bloque con tu información antes del día 2 -->
+
+Soy ecóloga/o microbiana/o. No tengo experiencia previa en
+programación ni en Python. Tengo conocimientos básicos de
+estadística (regresión, correlación) y de ecología de comunidades.
+Necesito que me expliques los resultados en lenguaje biológico
+además de estadístico.
+
 ## Sobre el curso
 
 Curso de 2 mañanas para biólogos y ecólogos sin experiencia previa
@@ -14,21 +33,40 @@ composición microbiana, obtener las correlaciones (Spearman) entre
 aridez/humedad relativa del suelo y esas métricas, y reproducir
 las figuras del paper.
 
+**Hipótesis:**
+- H1: A menor humedad relativa del suelo (AvgSoilRH), menor
+  diversidad alfa (Shannon).
+- H2: Los sitios más áridos (Yungay) se separan de los menos áridos
+  (Baquedano) en la ordenación PCoA a lo largo del primer eje.
+- H3: AvgSoilRH explica más varianza composicional que temperatura
+  o elevación (R² esperado: 0.20–0.50).
+
 ## Reglas para el agente
 
 1. **Estilo de código**: todo el código en Python debe seguir la
-   guía de estilo PEP8, con un largo máximo de línea de 79
-   caracteres.
+guía de estilo PEP8, con un largo máximo de línea de 79
+caracteres.
 
 2. **Audiencia**: el curso está dirigido a científicos que no son
-   bioinformáticos, con conocimientos básicos de informática. Las
-   explicaciones, nombres de variables, mensajes de error y
-   comentarios deben ser claros, evitando jerga técnica innecesaria.
+bioinformáticos, con conocimientos básicos de informática. Las
+explicaciones, nombres de variables, mensajes de error y
+comentarios deben ser claros, evitando jerga técnica innecesaria.
 
 3. **Confirmación antes de ejecutar**: nunca ejecutes comandos,
-   instalaciones, scripts ni cambios sobre archivos del curso sin
-   mostrar antes exactamente qué se va a ejecutar y esperar
-   confirmación explícita del usuario.
+instalaciones, scripts ni cambios sobre archivos del curso sin
+mostrar antes exactamente qué se va a ejecutar y esperar
+confirmación explícita del usuario.
+
+4. **Outputs**: guarda todas las figuras y tablas resultantes en
+`outputs/` dentro del branch personal. Nunca escribas en `data/`
+ni en `expected_outputs/`.
+
+5. **Errores**: si encuentras un error, muéstralo completo y
+explícalo en lenguaje simple. No intentes corregirlo más de
+dos veces sin consultar primero.
+
+6. **Verificación biológica**: al terminar cada análisis, pregunta
+si el resultado tiene sentido biológico antes de continuar.
 
 ## Estructura del repositorio
 
@@ -48,21 +86,139 @@ curso-analisis-claude/
 └── expected_outputs/
 ```
 
-`data/abundancias.tsv` y `data/metadata.tsv` están separados por
-tabs. Solo 54 de las 75 muestras en `metadata.tsv` tienen
-secuenciación en `abundancias.tsv` — filtrar por la intersección de
-IDs antes de cruzar ambos archivos.
-
 `docs/programa_curso_vJulio2026.pdf` es el programa oficial del
 curso (horario y contenidos por módulo). `docs/pasos_curso_manana1.md`
-y `docs/pasos_curso_manana2.md` traducen ese programa en una
-checklist orientada a participantes, una por cada mañana; por
-ahora solo la Mañana 2 está detallada, la Mañana 1 es un esqueleto
-pendiente de completar.
+es la checklist para la Mañana 1 (por ahora un esqueleto) y
+`docs/pasos_curso_manana2.md` es la checklist detallada, módulo por
+módulo, para la Mañana 2.
+
+`data/abundancias.tsv` es la tabla de abundancias de OTUs (una fila
+por OTU, una columna por muestra), exportada desde el `.biom`
+original del estudio — 1 109 OTUs × 54 muestras:
+
+```
+#OTU ID    BAQ2420.1.1  BAQ2420.1.2  BAQ2420.1.3  BAQ2420.2  ...
+409faa5f5353e543bf6d99125c7c0e83  0.0  0.0  0.0    0.0  ...
+1237d5925a7176fced9dda961a86c684  0.0  0.0  13.0   103.0 ...
+```
+
+`data/metadata.tsv` es la metadata de cada muestra (transecto,
+sitio, variables ambientales) — 75 muestras × 21 columnas:
+
+```
+sample-id    barcode-sequence  elevation  ...  transect-name  site-name  ...
+BAQ1370.1.2  GCCCAAGTTCAC      1370       ...  Baquedano      BAQ1370    ...
+BAQ1370.3    GCGCCGAATCTT      1370       ...  Baquedano      BAQ1370    ...
+```
+
+Solo 54 de las 75 muestras en `metadata.tsv` tienen secuenciación
+en `abundancias.tsv` (las 21 restantes quedaron sin datos de
+abundancia) — al cruzar ambos archivos, filtrar por la
+intersección de IDs, no asumir que coinciden 1 a 1.
+
+`expected_outputs/` es la carpeta destino de las figuras y tablas
+de referencia contra las que cada participante compara sus propios
+resultados. **Por ahora está vacía**, pendiente de que los
+instructores agreguen los outputs validados antes del curso.
 
 Cada participante trabaja en su propio branch personal, con su
-propio `CLAUDE.md` personalizado, `solution.py` y carpeta
-`outputs/`.
+propio `CLAUDE.md` personalizado, un script `solution.py`, y una
+carpeta `outputs/` para sus figuras y tablas.
+
+## Variables clave del dataset
+
+Las columnas más relevantes de `data/metadata.tsv` para el
+análisis del día 2:
+
+| Columna | Descripción |
+|---|---|
+| `sample-id` | Identificador de muestra (clave para el join con abundancias) |
+| `transect-name` | Transecto: `Baquedano` (BAQ, más húmedo) o `Yungay` (YUN, más árido) |
+| `AvgSoilRH` | Humedad relativa promedio del suelo — variable independiente principal |
+| `temperature` | Temperatura del suelo |
+| `elevation` | Elevación del sitio en metros |
+| `vegetation` | Presencia/ausencia de vegetación |
+
+Rangos esperados de AvgSoilRH: ~5–15 % en Yungay (hiperárido),
+~30–40 % en Baquedano (con vegetación).
+
+## Skills
+
+Las siguientes instrucciones se aplican automáticamente cuando la
+tarea corresponde a cada categoría. No es necesario repetirlas en
+cada prompt.
+
+### Cuando generes una figura
+
+**Trigger:** "genera una figura", "haz un plot", "visualiza",
+"grafica"
+
+1. Usa paleta daltónica: `viridis` para gradientes continuos,
+   `Set2` para grupos discretos.
+2. Exporta en PNG a 300 dpi y en PDF vectorial.
+3. Guarda ambos archivos en `outputs/` con nombre descriptivo en
+   inglés (ej. `fig1_shannon_vs_avgsoilrh.png`).
+4. Tamaño de figura por defecto: 8 × 6 pulgadas.
+5. Incluye siempre: título descriptivo, etiquetas de ejes con
+   unidades, leyenda si hay más de un grupo.
+6. Si es un scatter con regresión, incluye la banda de confianza
+   al 95 % y muestra R² y p-valor en el gráfico.
+
+### Cuando analices diversidad alfa
+
+**Trigger:** "analiza diversidad alfa", "calcula Shannon",
+"diversidad por muestra", "índice de diversidad"
+
+1. Muestra primero un resumen estadístico de los índices (media,
+   mediana, rango) por transecto (Baquedano vs. Yungay).
+2. Genera un boxplot por transecto antes de hacer cualquier
+   regresión.
+3. Usa `AvgSoilRH` como variable independiente principal salvo
+   que se indique otra.
+4. Reporta siempre: coeficiente de correlación (r o Spearman ρ),
+   R², p-valor y n.
+5. Si R² < 0.05, avisa antes de continuar — puede indicar un
+   problema con los datos o el análisis.
+
+### Cuando analices composición (beta-diversidad)
+
+**Trigger:** "analiza composición", "Bray-Curtis", "PCoA",
+"beta-diversidad", "composición de comunidades"
+
+1. Usa distancias Bray-Curtis salvo que se especifique otra
+   métrica.
+2. Para la ordenación, genera PCoA por defecto. Colorea por
+   gradiente continuo de `AvgSoilRH` con paleta `viridis`.
+3. Muestra el porcentaje de varianza explicado en los ejes de
+   la ordenación (PC1 y PC2).
+4. Para modelar composición ~ variables ambientales, usa dbRDA
+   o PERMANOVA con 999 permutaciones.
+5. Reporta para cada variable: F, R² y p-valor; ordena la tabla
+   de mayor a menor R².
+6. Avisa si n < 10 por grupo — las permutaciones pueden ser
+   insuficientes.
+
+### Cuando revises resultados
+
+**Trigger:** "revisa estos resultados", "¿tiene sentido?",
+"valida el análisis", "compara con la referencia"
+
+1. Evalúa si el resultado es biológicamente plausible para un
+   gradiente de aridez en suelo de desierto.
+2. Compara los valores numéricos con `expected_outputs/` si el
+   archivo correspondiente existe.
+3. Señala cualquier valor fuera de rango (R² negativo, p-valor > 1,
+   diversidades negativas, etc.).
+4. Si hay discrepancia con `expected_outputs/`, identifica la
+   causa probable (normalización, filtrado, índice diferente).
+5. Resume el resultado en máximo dos oraciones en lenguaje
+   biológico, no estadístico.
+
+## ✏️ Notas personales
+
+<!-- Espacio libre para contexto adicional que quieras agregar
+     durante el curso: observaciones del dataset, decisiones de
+     análisis, preguntas para el instructor, etc. -->
 
 ## Paper base
 
