@@ -21,6 +21,9 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 OUTPUT_DIR_H2 = "outputs2"
 os.makedirs(OUTPUT_DIR_H2, exist_ok=True)
 
+OUTPUT_DIR_H3 = "outputs3"
+os.makedirs(OUTPUT_DIR_H3, exist_ok=True)
+
 PALETTE_TRANSECTOS = {
     "Baquedano": "#1b9e77",
     "Yungay": "#d95f02",
@@ -213,6 +216,24 @@ def scatter_shannon_humedad(datos, r2, p_valor):
     plt.close(fig)
 
 
+def calcular_distancias_braycurtis(abundancias):
+    """Calcula la matriz de distancias Bray-Curtis entre muestras."""
+    muestras = abundancias.columns
+    matriz_conteos = abundancias.T.values
+    distancias = squareform(
+        pdist(matriz_conteos, metric="braycurtis")
+    )
+    return pd.DataFrame(distancias, index=muestras, columns=muestras)
+
+
+def centrar_gower(distancias):
+    """Aplica el centrado de Gower a una matriz de distancias."""
+    n = distancias.shape[0]
+    matriz_a = -0.5 * distancias ** 2
+    centrador = np.eye(n) - np.ones((n, n)) / n
+    return centrador @ matriz_a @ centrador
+
+
 def calcular_pcoa(abundancias):
     """
     Calcula PCoA clasico a partir de distancias Bray-Curtis.
@@ -223,16 +244,8 @@ def calcular_pcoa(abundancias):
     de esa libreria.
     """
     muestras = abundancias.columns
-    matriz_conteos = abundancias.T.values
-
-    distancias = squareform(
-        pdist(matriz_conteos, metric="braycurtis")
-    )
-
-    n = distancias.shape[0]
-    matriz_a = -0.5 * distancias ** 2
-    centrador = np.eye(n) - np.ones((n, n)) / n
-    matriz_g = centrador @ matriz_a @ centrador
+    distancias = calcular_distancias_braycurtis(abundancias).values
+    matriz_g = centrar_gower(distancias)
 
     eigenvalores, eigenvectores = np.linalg.eigh(matriz_g)
 
@@ -398,6 +411,360 @@ def main():
     )
 
 
+def permanova_univariada(distancias, variable, n_permutaciones=999,
+                          semilla=0):
+    """
+    PERMANOVA univariada (McArdle & Anderson, 2001) para una sola
+    variable ambiental continua contra una matriz de distancias.
+
+    Reproduce el pseudo-F de adonis/adonis2 (paquete vegan de R):
+    parte la suma de cuadrados total de la matriz centrada de Gower
+    en la parte explicada por la variable y el residuo, usando la
+    matriz de proyeccion (hat matrix) de un modelo lineal con
+    intercepto + la variable.
+    """
+    aleatorio = np.random.RandomState(semilla)
+
+    matriz_g = centrar_gower(distancias.values)
+    n = matriz_g.shape[0]
+
+    x = np.column_stack([np.ones(n), variable.values])
+    hat = x @ np.linalg.pinv(x.T @ x) @ x.T
+    identidad = np.eye(n)
+
+    ss_total = np.trace(matriz_g)
+
+    def pseudo_f(hat_matrix):
+        ss_modelo = np.trace(hat_matrix @ matriz_g @ hat_matrix)
+        ss_residuo = np.trace(
+            (identidad - hat_matrix) @ matriz_g
+            @ (identidad - hat_matrix)
+        )
+        gl_modelo = 1
+        gl_residuo = n - 2
+        f = (ss_modelo / gl_modelo) / (ss_residuo / gl_residuo)
+        r2 = ss_modelo / ss_total
+        return f, r2
+
+    f_observado, r2_observado = pseudo_f(hat)
+
+    contador = 0
+    for _ in range(n_permutaciones):
+        orden = aleatorio.permutation(n)
+        x_permutado = np.column_stack(
+            [np.ones(n), variable.values[orden]]
+        )
+        hat_permutado = (
+            x_permutado
+            @ np.linalg.pinv(x_permutado.T @ x_permutado)
+            @ x_permutado.T
+        )
+        f_permutado, _ = pseudo_f(hat_permutado)
+        if f_permutado >= f_observado:
+            contador += 1
+
+    p_valor = (contador + 1) / (n_permutaciones + 1)
+
+    return f_observado, r2_observado, p_valor, n
+
+
+def permanova_variables_ambientales(abundancias, metadata):
+    """
+    Corre PERMANOVA univariada para humedad, temperatura y
+    elevacion, y ordena el resultado de mayor a menor R2.
+    """
+    distancias = calcular_distancias_braycurtis(abundancias)
+
+    variables = {
+        "humedad_relativa": "average-soil-relative-humidity",
+        "temperatura": "average-soil-temperature",
+        "elevacion": "elevation",
+    }
+
+    filas = []
+    for nombre, columna in variables.items():
+        valores = metadata[columna]
+        muestras_validas = valores.dropna().index
+        distancias_validas = distancias.loc[
+            muestras_validas, muestras_validas
+        ]
+        f, r2, p_valor, n = permanova_univariada(
+            distancias_validas, valores.loc[muestras_validas]
+        )
+        filas.append(
+            {
+                "variable": nombre,
+                "columna_original": columna,
+                "F": f,
+                "R2": r2,
+                "p_valor": p_valor,
+                "n_permutaciones": 999,
+                "n": n,
+            }
+        )
+
+    tabla = pd.DataFrame(filas).sort_values(
+        "R2", ascending=False
+    ).reset_index(drop=True)
+    return tabla
+
+
+def guardar_permanova(tabla):
+    """Imprime y guarda la tabla de PERMANOVA de H3."""
+    print("\nPERMANOVA univariada (variables ambientales):")
+    print(
+        tabla.round(4).to_string(index=False)
+    )
+    tabla.to_csv(
+        os.path.join(
+            OUTPUT_DIR_H3, "h3_permanova_variables_ambientales.tsv"
+        ),
+        sep="\t",
+        index=False,
+    )
+    return tabla
+
+
+def graficar_permanova(tabla):
+    """Barra horizontal de R2 por variable ambiental, con p-valor."""
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    colores = sns.color_palette("Set2", len(tabla))
+
+    barras = ax.barh(
+        tabla["variable"], tabla["R2"], color=colores
+    )
+
+    for barra, p_valor in zip(barras, tabla["p_valor"]):
+        ax.text(
+            barra.get_width() + 0.002,
+            barra.get_y() + barra.get_height() / 2,
+            f"p = {p_valor:.3f}",
+            va="center",
+            fontsize=10,
+        )
+
+    ax.set_xlabel(
+        "R2 (proporcion de varianza composicional explicada)"
+    )
+    ax.set_ylabel("Variable ambiental")
+    ax.set_title(
+        "PERMANOVA univariada por variable ambiental\n"
+        "Desierto de Atacama (Bray-Curtis, 999 permutaciones)"
+    )
+    ax.invert_yaxis()
+
+    fig.tight_layout()
+    fig.savefig(
+        os.path.join(
+            OUTPUT_DIR_H3, "fig3_permanova_variables_ambientales.png"
+        ),
+        dpi=300,
+    )
+    fig.savefig(
+        os.path.join(
+            OUTPUT_DIR_H3, "fig3_permanova_variables_ambientales.pdf"
+        )
+    )
+    plt.close(fig)
+
+
+def _hat_matrix(x):
+    """Matriz de proyeccion (hat matrix) de un modelo lineal."""
+    return x @ np.linalg.pinv(x.T @ x) @ x.T
+
+
+def _suma_cuadrados_modelo(matriz_g, hat):
+    """SS explicada por un modelo con matriz de proyeccion 'hat'."""
+    return np.trace(hat @ matriz_g @ hat)
+
+
+def permanova_multivariada(distancias, variables, n_permutaciones=999,
+                            semilla=0):
+    """
+    PERMANOVA multivariada: humedad + temperatura + elevacion
+    juntas en un solo modelo (equivalente a adonis2 del paquete
+    vegan de R).
+
+    Reporta:
+    - El modelo completo (las tres variables juntas): cuanta
+      varianza composicional explican en conjunto.
+    - La contribucion marginal de cada variable (su R2 al
+      quitarla del modelo completo y ver cuanto se pierde),
+      equivalente a adonis2(..., by="margin").
+    """
+    aleatorio = np.random.RandomState(semilla)
+    matriz_g = centrar_gower(distancias.values)
+    n = matriz_g.shape[0]
+    identidad = np.eye(n)
+    ss_total = np.trace(matriz_g)
+
+    nombres = list(variables.keys())
+    columnas = {
+        nombre: variables[nombre].values for nombre in nombres
+    }
+    p = len(nombres)
+
+    x_completo = np.column_stack(
+        [np.ones(n)] + [columnas[nombre] for nombre in nombres]
+    )
+    hat_completo = _hat_matrix(x_completo)
+    ss_modelo_completo = _suma_cuadrados_modelo(
+        matriz_g, hat_completo
+    )
+    ss_residuo_completo = ss_total - ss_modelo_completo
+    gl_modelo = p
+    gl_residuo = n - p - 1
+
+    f_completo = (
+        (ss_modelo_completo / gl_modelo)
+        / (ss_residuo_completo / gl_residuo)
+    )
+    r2_completo = ss_modelo_completo / ss_total
+
+    contador = 0
+    for _ in range(n_permutaciones):
+        orden = aleatorio.permutation(n)
+        hat_permutado = _hat_matrix(x_completo[orden])
+        ss_permutada = _suma_cuadrados_modelo(
+            matriz_g, hat_permutado
+        )
+        ss_residuo_permutada = ss_total - ss_permutada
+        f_permutado = (
+            (ss_permutada / gl_modelo)
+            / (ss_residuo_permutada / gl_residuo)
+        )
+        if f_permutado >= f_completo:
+            contador += 1
+    p_completo = (contador + 1) / (n_permutaciones + 1)
+
+    fila_completo = {
+        "termino": "modelo completo (las 3 variables)",
+        "F": f_completo,
+        "R2": r2_completo,
+        "p_valor": p_completo,
+        "n_permutaciones": n_permutaciones,
+        "n": n,
+    }
+
+    filas_marginales = []
+    for nombre in nombres:
+        columnas_otras = [
+            columnas[otro] for otro in nombres if otro != nombre
+        ]
+        x_reducido = np.column_stack(
+            [np.ones(n)] + columnas_otras
+        )
+        hat_reducido = _hat_matrix(x_reducido)
+        ss_modelo_reducido = _suma_cuadrados_modelo(
+            matriz_g, hat_reducido
+        )
+        ss_marginal = ss_modelo_completo - ss_modelo_reducido
+        f_marginal = (
+            (ss_marginal / 1) / (ss_residuo_completo / gl_residuo)
+        )
+        r2_marginal = ss_marginal / ss_total
+
+        contador_marginal = 0
+        for _ in range(n_permutaciones):
+            orden = aleatorio.permutation(n)
+            columnas_permutadas = columnas_otras + [
+                columnas[nombre][orden]
+            ]
+            x_completo_permutado = np.column_stack(
+                [np.ones(n)] + columnas_permutadas
+            )
+            hat_permutado = _hat_matrix(x_completo_permutado)
+            ss_permutada = _suma_cuadrados_modelo(
+                matriz_g, hat_permutado
+            )
+            ss_marginal_permutada = (
+                ss_permutada - ss_modelo_reducido
+            )
+            f_permutado = (
+                (ss_marginal_permutada / 1)
+                / (ss_residuo_completo / gl_residuo)
+            )
+            if f_permutado >= f_marginal:
+                contador_marginal += 1
+        p_marginal = (
+            (contador_marginal + 1) / (n_permutaciones + 1)
+        )
+
+        filas_marginales.append(
+            {
+                "termino": nombre,
+                "F": f_marginal,
+                "R2": r2_marginal,
+                "p_valor": p_marginal,
+                "n_permutaciones": n_permutaciones,
+                "n": n,
+            }
+        )
+
+    filas_marginales = sorted(
+        filas_marginales, key=lambda fila: fila["R2"], reverse=True
+    )
+    tabla = pd.DataFrame([fila_completo] + filas_marginales)
+    return tabla
+
+
+def h3_modelo_multivariado(abundancias, metadata):
+    """
+    Corre el PERMANOVA multivariado de H3: humedad, temperatura y
+    elevacion juntas en un solo modelo, en vez de una a la vez.
+    """
+    columnas = {
+        "humedad_relativa": "average-soil-relative-humidity",
+        "temperatura": "average-soil-temperature",
+        "elevacion": "elevation",
+    }
+
+    muestras_validas = metadata[list(columnas.values())].dropna(
+    ).index
+    metadata_validas = metadata.loc[muestras_validas]
+    abundancias_validas = abundancias[muestras_validas]
+
+    distancias = calcular_distancias_braycurtis(
+        abundancias_validas
+    )
+    variables = {
+        nombre: metadata_validas[columna]
+        for nombre, columna in columnas.items()
+    }
+
+    tabla = permanova_multivariada(distancias, variables)
+
+    print("\nPERMANOVA multivariado (las 3 variables juntas):")
+    print(tabla.round(4).to_string(index=False))
+
+    tabla.to_csv(
+        os.path.join(
+            OUTPUT_DIR_H3,
+            "h3_permanova_modelo_multivariado.tsv",
+        ),
+        sep="\t",
+        index=False,
+    )
+    return tabla
+
+
+def main_h3():
+    abundancias, metadata = cargar_datos()
+
+    tabla = permanova_variables_ambientales(abundancias, metadata)
+    guardar_permanova(tabla)
+    graficar_permanova(tabla)
+
+    h3_modelo_multivariado(abundancias, metadata)
+
+    print(
+        "\nListo. Figura y tabla de H3 guardadas en la carpeta "
+        "'outputs3/'."
+    )
+
+
 if __name__ == "__main__":
     main()
     main_h2()
+    main_h3()

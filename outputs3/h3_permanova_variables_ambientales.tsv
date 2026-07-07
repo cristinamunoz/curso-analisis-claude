@@ -1,0 +1,4 @@
+variable	columna_original	F	R2	p_valor	n_permutaciones	n
+temperatura	average-soil-temperature	3.000309768728841	0.05769792107148426	0.001	999	51
+elevacion	elevation	2.930490395303785	0.05334906668804031	0.001	999	54
+humedad_relativa	average-soil-relative-humidity	2.5672710873402633	0.049784893270617504	0.001	999	51
