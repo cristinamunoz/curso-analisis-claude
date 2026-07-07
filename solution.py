@@ -498,10 +498,151 @@ def run_h2_h3(abund, metadata):
     )
 
 
+def scatter_with_fit(x, y, xlabel, ylabel, title, out_path):
+    """Scatter con regresion lineal y banda de confianza al 95%,
+    anotado con R2, p-valor, rho de Spearman y n. Guarda solo en
+    PNG (300 dpi), sin PDF."""
+    lin = stats.linregress(x, y)
+    r_squared = lin.rvalue ** 2
+    rho, p_spearman = stats.spearmanr(x, y)
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    ax.scatter(
+        x, y, c="#3B4CC0", alpha=0.8, edgecolor="white", label="Samples"
+    )
+
+    x_line = np.linspace(x.min(), x.max(), 100)
+    y_line = lin.intercept + lin.slope * x_line
+
+    n = len(x)
+    dof = n - 2
+    t_val = stats.t.ppf(0.975, dof)
+    x_mean = x.mean()
+    s_err = np.sqrt(
+        np.sum((y - (lin.intercept + lin.slope * x)) ** 2) / dof
+    )
+    se_line = s_err * np.sqrt(
+        1 / n + (x_line - x_mean) ** 2 / np.sum((x - x_mean) ** 2)
+    )
+    ci = t_val * se_line
+
+    ax.plot(x_line, y_line, color="#B40426", label="Linear fit")
+    ax.fill_between(
+        x_line,
+        y_line - ci,
+        y_line + ci,
+        color="#B40426",
+        alpha=0.2,
+        label="95% CI",
+    )
+
+    text = (
+        f"R2 = {r_squared:.3f}\n"
+        f"p = {lin.pvalue:.4f}\n"
+        f"Spearman rho = {rho:.3f}\n"
+        f"n = {n}"
+    )
+    ax.text(
+        0.05,
+        0.95,
+        text,
+        transform=ax.transAxes,
+        verticalalignment="top",
+        bbox=dict(facecolor="white", alpha=0.8, edgecolor="gray"),
+    )
+
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_title(title)
+    ax.legend(loc="best")
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=300)
+    plt.close(fig)
+
+    return {
+        "rho": rho,
+        "p_spearman": p_spearman,
+        "r_squared": r_squared,
+        "slope": lin.slope,
+        "p_linreg": lin.pvalue,
+        "n": n,
+    }
+
+
+def run_elevation_exploration(metadata):
+    """Extra: explora si la elevacion se relaciona con la humedad
+    y la temperatura del suelo (via precipitacion orografica y el
+    gradiente termico altitudinal), y si eso la vuelve una mejor
+    variable explicativa de la composicion que AvgSoilRH sola."""
+    print("\n" + "=" * 60)
+    print("Extra: elevacion vs humedad y temperatura del suelo")
+    print("=" * 60)
+
+    env = metadata[
+        [
+            "elevation",
+            "average-soil-relative-humidity",
+            "average-soil-temperature",
+        ]
+    ].dropna()
+    x_elev = env["elevation"].to_numpy()
+
+    stats_rh = scatter_with_fit(
+        x_elev,
+        env["average-soil-relative-humidity"].to_numpy(),
+        "Elevation (m a.s.l.)",
+        "Average soil relative humidity (%)",
+        "Elevation vs. average soil relative humidity",
+        os.path.join(OUT_DIR, "fig3_elevation_vs_avgsoilrh.png"),
+    )
+    stats_temp = scatter_with_fit(
+        x_elev,
+        env["average-soil-temperature"].to_numpy(),
+        "Elevation (m a.s.l.)",
+        "Average soil temperature (C)",
+        "Elevation vs. average soil temperature",
+        os.path.join(OUT_DIR, "fig3_elevation_vs_temperature.png"),
+    )
+
+    print(
+        f"\nElevacion vs AvgSoilRH: rho = {stats_rh['rho']:.4f}, "
+        f"p = {stats_rh['p_spearman']:.6f}, n = {stats_rh['n']}"
+    )
+    print(
+        f"Elevacion vs temperatura: rho = {stats_temp['rho']:.4f}, "
+        f"p = {stats_temp['p_spearman']:.6f}, n = {stats_temp['n']}"
+    )
+
+    table = pd.DataFrame(
+        [
+            {
+                "variable_x": "elevation",
+                "variable_y": "average-soil-relative-humidity",
+                "spearman_rho": stats_rh["rho"],
+                "p_valor": stats_rh["p_spearman"],
+                "n": stats_rh["n"],
+            },
+            {
+                "variable_x": "elevation",
+                "variable_y": "average-soil-temperature",
+                "spearman_rho": stats_temp["rho"],
+                "p_valor": stats_temp["p_spearman"],
+                "n": stats_temp["n"],
+            },
+        ]
+    )
+    table.to_csv(
+        os.path.join(OUT_DIR, "h3b_correlacion_elevacion_variables.tsv"),
+        sep="\t",
+        index=False,
+    )
+
+
 def main():
     abund, metadata = load_data()
     run_h1(abund, metadata)
     run_h2_h3(abund, metadata)
+    run_elevation_exploration(metadata)
 
 
 if __name__ == "__main__":
