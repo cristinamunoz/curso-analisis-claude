@@ -234,3 +234,72 @@ tabla_h3.to_csv(
     sep="\t", index=False
 )
 print("Tabla guardada: outputs/h3_permanova_variables_ambientales.tsv")
+
+# =============================================================
+# FIGURA EXTRA — Shannon por sitio ordenado por humedad
+# =============================================================
+
+# --- 12. Shannon por sitio ordenado por humedad ---
+shannon_sitio = metadata.groupby("site-name").agg(
+    shannon_media=("shannon", "mean"),
+    shannon_std=("shannon", "std"),
+    humedad=("average-soil-relative-humidity", "mean"),
+    transecto=("transect-name", "first")
+).dropna().sort_values("humedad")
+
+colores_sitio = shannon_sitio["transecto"].map(
+    {"Baquedano": "#66c2a5", "Yungay": "#fc8d62"}
+)
+
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.barh(
+    range(len(shannon_sitio)),
+    shannon_sitio["shannon_media"],
+    xerr=shannon_sitio["shannon_std"],
+    color=colores_sitio, edgecolor="grey",
+    linewidth=0.5, capsize=3, alpha=0.9
+)
+ax.set_yticks(range(len(shannon_sitio)))
+ax.set_yticklabels([
+    f"{s}  ({h:.0f}%)"
+    for s, h in zip(shannon_sitio.index, shannon_sitio["humedad"])
+], fontsize=9)
+ax.set_xlabel("Indice de Shannon (media +/- DE)")
+ax.set_title(
+    "Diversidad alfa por sitio ordenado por humedad del suelo\n"
+    "(de menor a mayor humedad)"
+)
+parches = [
+    mpatches.Patch(color="#66c2a5", label="Baquedano"),
+    mpatches.Patch(color="#fc8d62", label="Yungay")
+]
+ax.legend(handles=parches)
+plt.tight_layout()
+plt.savefig("outputs/fig3_shannon_por_sitio.png", dpi=300)
+plt.savefig("outputs/fig3_shannon_por_sitio.pdf")
+plt.close()
+print("Figura guardada: outputs/fig3_shannon_por_sitio.png/.pdf")
+
+# --- 13. PCoA coloreado por transecto (discreto) ---
+fig, ax = plt.subplots(figsize=(8, 6))
+for transecto, color in [("Baquedano", "#66c2a5"), ("Yungay", "#fc8d62")]:
+    mask = (
+        metadata.loc[abundancias_rel.index, "transect-name"] == transecto
+    ).values
+    ax.scatter(
+        coords[mask, 0], coords[mask, 1],
+        c=color, label=transecto,
+        s=80, edgecolors="grey", linewidths=0.5, alpha=0.9
+    )
+ax.set_xlabel(f"PC1 ({varianza_explicada[0]:.1f}% varianza)")
+ax.set_ylabel(f"PC2 ({varianza_explicada[1]:.1f}% varianza)")
+ax.set_title(
+    "PCoA Bray-Curtis — composicion por transecto\n"
+    "Baquedano (humedo) vs. Yungay (arido)"
+)
+ax.legend()
+plt.tight_layout()
+plt.savefig("outputs/fig4_pcoa_por_transecto.png", dpi=300)
+plt.savefig("outputs/fig4_pcoa_por_transecto.pdf")
+plt.close()
+print("Figura guardada: outputs/fig4_pcoa_por_transecto.png/.pdf")
