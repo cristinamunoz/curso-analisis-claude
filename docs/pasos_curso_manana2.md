@@ -6,6 +6,10 @@ tú (el participante) y qué deberías tener listo al terminar.
 
 Ver también [pasos_curso_manana1.md](pasos_curso_manana1.md).
 
+Antes de empezar, si todavía no tienes tu branch personal creada
+y subida a GitHub, sigue primero
+[pasos_git_branch.md](pasos_git_branch.md).
+
 ---
 
 ### Módulo 7 · El paper y la pregunta biológica (09:00–09:30)
