@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Informe Módulo 8 — Diversidad del microbioma de Atacama</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #1a1a1a;
+    --muted: #5a5a5a;
+    --card: #f6f7f9;
+    --border: #e2e5e9;
+    --accent: #2a7f62;
+    --accent-soft: #e3f1ea;
+    --warn: #b26a00;
+    --warn-soft: #fbf0dd;
+    --ok: #2a7f62;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16181c;
+      --fg: #e9ecef;
+      --muted: #a3a9b2;
+      --card: #1f2228;
+      --border: #2c313a;
+      --accent: #5fc79f;
+      --accent-soft: #1c2b25;
+      --warn: #e6a94e;
+      --warn-soft: #2d2513;
+      --ok: #5fc79f;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI",
+      Roboto, Helvetica, Arial, sans-serif;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; padding: 2.5rem 1.2rem 4rem; }
+  header { border-bottom: 3px solid var(--accent); padding-bottom: 1.2rem; }
+  h1 { font-size: 1.9rem; line-height: 1.25; margin: 0 0 .4rem; }
+  h2 {
+    font-size: 1.35rem; margin: 2.4rem 0 .8rem;
+    padding-left: .6rem; border-left: 4px solid var(--accent);
+  }
+  h3 { font-size: 1.08rem; margin: 1.6rem 0 .5rem; }
+  .sub { color: var(--muted); font-size: 1.02rem; margin: 0; }
+  p { margin: .7rem 0; }
+  .step {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.1rem 1.3rem; margin: 1rem 0;
+  }
+  .step-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 1.9rem; height: 1.9rem; border-radius: 50%;
+    background: var(--accent); color: #fff; font-weight: 700;
+    font-size: .95rem; margin-right: .5rem; flex: none;
+  }
+  .step h3 { margin-top: 0; display: flex; align-items: center; }
+  figure { margin: 1.2rem 0; }
+  img {
+    max-width: 100%; height: auto; border: 1px solid var(--border);
+    border-radius: 10px; background: #fff;
+  }
+  figcaption {
+    color: var(--muted); font-size: .9rem; margin-top: .4rem;
+    text-align: center;
+  }
+  .callout {
+    border-radius: 10px; padding: .9rem 1.1rem; margin: 1rem 0;
+    border: 1px solid var(--border);
+  }
+  .callout.ok { background: var(--accent-soft); border-color: var(--accent); }
+  .callout.warn { background: var(--warn-soft); border-color: var(--warn); }
+  .callout .tag { font-weight: 700; }
+  .callout.ok .tag { color: var(--ok); }
+  .callout.warn .tag { color: var(--warn); }
+  table {
+    width: 100%; border-collapse: collapse; margin: 1rem 0;
+    font-size: .95rem;
+  }
+  th, td { text-align: left; padding: .55rem .7rem; border-bottom: 1px solid var(--border); }
+  th { background: var(--card); }
+  .verdict td:first-child { font-weight: 600; }
+  code {
+    background: var(--card); padding: .1rem .35rem; border-radius: 5px;
+    font-size: .9em; border: 1px solid var(--border);
+  }
+  .files { columns: 2; font-size: .92rem; }
+  .files li { break-inside: avoid; margin-bottom: .3rem; }
+  .analogy {
+    font-style: italic; color: var(--muted);
+    border-left: 3px solid var(--border); padding-left: .9rem;
+  }
+  footer {
+    margin-top: 3rem; padding-top: 1.2rem; border-top: 1px solid var(--border);
+    color: var(--muted); font-size: .88rem;
+  }
+  @media (max-width: 560px) { .files { columns: 1; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>¿La aridez empobrece el microbioma del suelo?</h1>
+  <p class="sub">Informe del Módulo 8 · Reproduciendo a Neilson et&nbsp;al.
+  (2017) en el desierto de Atacama · Diversidad alfa y beta</p>
+</header>
+
+<h2>La pregunta</h2>
+<p>El desierto de Atacama es uno de los lugares más secos del planeta.
+Queríamos comprobar si <strong>los suelos más secos tienen comunidades
+de microbios más pobres y distintas</strong> que los suelos algo más
+húmedos. Trabajamos con dos transectos: <strong>Baquedano</strong>
+(menos árido) y <strong>Yungay</strong> (más árido).</p>
+
+<p>Para responder, pusimos a prueba tres hipótesis:</p>
+<table>
+  <tr><th>Hipótesis</th><th>Qué dice</th></tr>
+  <tr><td><strong>H1</strong></td><td>A menor humedad del suelo, menor
+    diversidad <em>dentro</em> de cada muestra (índice de Shannon).</td></tr>
+  <tr><td><strong>H2</strong></td><td>Yungay (seco) y Baquedano (húmedo)
+    tienen comunidades de composición distinta.</td></tr>
+  <tr><td><strong>H3</strong></td><td>La humedad explica la composición
+    mejor que la temperatura o la elevación.</td></tr>
+</table>
+
+<h2>Los datos que usamos</h2>
+<p>Dos tablas: una con <strong>cuántos microbios de cada tipo</strong>
+(1&nbsp;109 tipos, llamados OTUs) hay en cada muestra, y otra con las
+<strong>condiciones ambientales</strong> de cada muestra (humedad,
+temperatura, elevación...). Solo <strong>54 muestras</strong> tenían los
+dos tipos de dato, así que trabajamos con esas.</p>
+
+<h2>Lo que hicimos, paso a paso</h2>
+
+<div class="step">
+  <h3><span class="step-num">1</span>Juntar las dos tablas</h3>
+  <p>Cruzamos las muestras que aparecían en ambos archivos y nos
+  quedamos con las 54 comunes (25 de Baquedano, 29 de Yungay). Es como
+  emparejar cada muestra de suelo con su "ficha" de condiciones
+  ambientales.</p>
+</div>
+
+<div class="step">
+  <h3><span class="step-num">2</span>Diversidad ALFA: ¿cuánta vida hay
+  dentro de cada muestra?</h3>
+  <p>Para cada muestra calculamos el <strong>índice de Shannon</strong>,
+  un número que resume dos cosas: cuántos tipos de microbio hay y si
+  están repartidos de forma equilibrada.</p>
+  <p class="analogy">Piénsalo como un bosque: un valor de Shannon alto
+  es un bosque con muchas especies de árbol bien mezcladas; uno bajo es
+  un bosque con dos o tres especies dominando todo.</p>
+  <figure>
+    <img src="fig1_shannon_por_transecto.png"
+      alt="Boxplot de Shannon por transecto">
+    <figcaption>Diversidad por transecto. Baquedano (menos árido)
+    tiende a más diversidad que Yungay.</figcaption>
+  </figure>
+  <p>Después comparamos el Shannon de cada muestra con su humedad del
+  suelo mediante una <strong>regresión</strong> y una correlación de
+  Spearman (el mismo método del paper).</p>
+  <figure>
+    <img src="fig1_shannon_vs_avgsoilrh.png"
+      alt="Dispersión de Shannon frente a la humedad del suelo">
+    <figcaption>A más humedad, más diversidad. La línea sube:
+    R²&nbsp;=&nbsp;0.21, p&nbsp;&lt;&nbsp;0.001.</figcaption>
+  </figure>
+  <div class="callout ok">
+    <span class="tag">Resultado H1 ✔</span> Sí: los suelos más húmedos
+    albergan comunidades más diversas. El agua es el recurso limitante,
+    así que donde hay algo más de humedad caben más tipos de microbio.
+  </div>
+</div>
+
+<div class="step">
+  <h3><span class="step-num">3</span>Diversidad BETA: ¿en qué se
+  diferencian las muestras entre sí?</h3>
+  <p>Calculamos la <strong>distancia de Bray-Curtis</strong> entre cada
+  par de muestras: un número de 0 (composición idéntica) a 1 (no
+  comparten ningún microbio). Con esas distancias hicimos una
+  <strong>ordenación PCoA</strong>, que coloca las muestras en un mapa
+  donde las más parecidas quedan cerca.</p>
+  <p class="analogy">Es como un mapa de "parecido": dos pueblos con la
+  misma gastronomía aparecen juntos; dos con comidas muy distintas,
+  lejos.</p>
+</div>
+
+<div class="step">
+  <h3><span class="step-num">4</span>Limpiar el ruido: quedarnos con los
+  microbios frecuentes</h3>
+  <p>De los 1&nbsp;109 tipos de microbio, muchísimos aparecían en solo
+  1 o 2 muestras y solo añadían ruido. Nos quedamos con los
+  <strong>37 OTUs "core"</strong> (presentes en al menos el 10&nbsp;% de
+  las muestras). Al hacerlo, el patrón ambiental se vio mucho más claro:
+  el porcentaje de variación explicado por el primer eje pasó de
+  8.6&nbsp;% a <strong>16.9&nbsp;%</strong>, y la humedad pasó a ser la
+  variable más importante.</p>
+</div>
+
+<div class="step">
+  <h3><span class="step-num">5</span>Medir qué explica la composición
+  (PERMANOVA)</h3>
+  <p>Con una prueba estadística llamada <strong>PERMANOVA</strong>
+  (999 barajados al azar) medimos cuánta variación en la composición
+  explica cada variable ambiental por separado.</p>
+  <figure>
+    <img src="fig2_pcoa_braycurtis.png"
+      alt="PCoA coloreada por humedad y con formas por transecto">
+    <figcaption>Mapa de composición (37 OTUs core). Color = humedad
+    (viridis); forma = transecto. Los suelos secos (morado) quedan a la
+    izquierda y los húmedos (amarillo) a la derecha.</figcaption>
+  </figure>
+  <table>
+    <tr><th>Variable</th><th>Varianza explicada (R²)</th><th>p</th></tr>
+    <tr><td><strong>Humedad (AvgSoilRH)</strong></td><td>0.114 (la mayor)</td><td>0.001</td></tr>
+    <tr><td>Temperatura</td><td>0.110</td><td>0.001</td></tr>
+    <tr><td>Elevación</td><td>0.107</td><td>0.001</td></tr>
+  </table>
+  <div class="callout warn">
+    <span class="tag">Matiz honesto</span> Las tres variables explican
+    algo parecido (~11&nbsp;%) y van casi empatadas: en un desierto de
+    montaña, humedad, temperatura y elevación cambian <em>juntas</em> a
+    lo largo del gradiente, así que es difícil separar sus efectos.
+  </div>
+</div>
+
+<h2>Veredicto de las hipótesis</h2>
+<table class="verdict">
+  <tr><th>Hipótesis</th><th>Resultado</th><th>¿Se apoya?</th></tr>
+  <tr><td>H1 · humedad → diversidad</td>
+    <td>R²&nbsp;=&nbsp;0.21; ρ&nbsp;=&nbsp;0.47; p&nbsp;&lt;&nbsp;0.001</td>
+    <td>✔ Sí</td></tr>
+  <tr><td>H2 · separación de transectos</td>
+    <td>Real pero débil (R²&nbsp;=&nbsp;0.05); se solapan bastante</td>
+    <td>◑ Parcial</td></tr>
+  <tr><td>H3 · humedad domina</td>
+    <td>Es la nº&nbsp;1 (R²&nbsp;=&nbsp;0.11) pero casi empatada</td>
+    <td>◑ Dirección correcta, efecto moderado</td></tr>
+</table>
+
+<h2>Conclusión biológica</h2>
+<div class="callout ok">
+  La aridez deja una <strong>huella clara</strong> en el microbioma de
+  Atacama: los suelos más secos tienen menos diversidad y una
+  composición algo distinta. Pero el efecto es <strong>moderado y
+  compartido</strong> con la temperatura y la elevación, que varían a la
+  vez a lo largo del gradiente. La dirección coincide con lo que
+  encontraron Neilson et&nbsp;al. (2017).
+</div>
+
+<h2>Archivos generados</h2>
+<ul class="files">
+  <li><code>solution.py</code> — todo el análisis</li>
+  <li><code>h1_diversidad_alfa.tsv</code> — Shannon por muestra + stats</li>
+  <li><code>h1_resumen_shannon_por_transecto.tsv</code></li>
+  <li><code>h1_regresion_shannon_vs_humedad.tsv</code></li>
+  <li><code>h2_varianza_explicada_pcoa.tsv</code></li>
+  <li><code>h3_permanova_variables_ambientales.tsv</code></li>
+  <li><code>fig1_shannon_por_transecto</code> (png/pdf)</li>
+  <li><code>fig1_shannon_vs_avgsoilrh</code> (png/pdf)</li>
+  <li><code>fig2_pcoa_braycurtis</code> (png/pdf)</li>
+</ul>
+
+<footer>
+  Curso "Ecología de comunidades con Claude Code" · Módulo 8 ·
+  Análisis del microbioma de suelo del desierto de Atacama.
+  Todas las figuras en 300&nbsp;dpi (PNG) y PDF vectorial.
+</footer>
+</div>
+</body>
+</html>

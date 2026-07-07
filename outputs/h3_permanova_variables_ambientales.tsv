@@ -1,0 +1,4 @@
+variable	F	R2	p_valor
+AvgSoilRH	6.295	0.114	0.001
+temperatura	6.057	0.11	0.001
+elevacion	5.883	0.107	0.001
