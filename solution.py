@@ -281,6 +281,47 @@ def permanova(dist_matrix, predictor, n_perm=N_PERMUTATIONS, seed=0):
     return f_obs, r2_obs, p_value
 
 
+def permanova_multivariate(
+    dist_matrix, predictors, n_perm=N_PERMUTATIONS, seed=0
+):
+    """PERMANOVA multivariado (McArdle y Anderson) con varios
+    predictores ambientales continuos evaluados en conjunto.
+    predictors: array de forma (n_muestras, n_variables).
+    Devuelve el pseudo-F, R2 y p-valor del modelo completo."""
+    n = dist_matrix.shape[0]
+    d2 = dist_matrix ** 2
+    centering = np.eye(n) - np.ones((n, n)) / n
+    gower = -0.5 * centering @ d2 @ centering
+    ss_total = np.trace(gower)
+    n_vars = predictors.shape[1]
+
+    def pseudo_f(values):
+        design = np.column_stack([np.ones(n), values])
+        xtx_inv = np.linalg.inv(design.T @ design)
+        hat = design @ xtx_inv @ design.T
+        ss_model = np.trace(hat @ gower)
+        ss_resid = ss_total - ss_model
+        df_model = n_vars
+        df_resid = n - n_vars - 1
+        f_stat = (ss_model / df_model) / (ss_resid / df_resid)
+        r2 = ss_model / ss_total
+        return f_stat, r2
+
+    f_obs, r2_obs = pseudo_f(predictors)
+
+    rng = np.random.default_rng(seed)
+    count_ge = 0
+    for _ in range(n_perm):
+        perm_idx = rng.permutation(n)
+        permuted = predictors[perm_idx, :]
+        f_perm, _ = pseudo_f(permuted)
+        if f_perm >= f_obs - 1e-12:
+            count_ge += 1
+    p_value = (count_ge + 1) / (n_perm + 1)
+
+    return f_obs, r2_obs, p_value
+
+
 def run_h2_h3(abund, metadata):
     """H2: PCoA Bray-Curtis coloreado por AvgSoilRH.
     H3: PERMANOVA univariado de humedad, temperatura y elevacion.
@@ -393,6 +434,72 @@ def run_h2_h3(abund, metadata):
 
     results_df.to_csv(
         os.path.join(OUT_DIR, "h3_permanova_variables_ambientales.tsv"),
+        sep="\t",
+        index=False,
+    )
+
+    # Analisis extra: PERMANOVA multivariado combinando las tres
+    # variables ambientales a la vez, para ver si el poder
+    # explicativo conjunto se acerca al rango esperado por H3
+    # (0.20-0.50) y si hay solapamiento (redundancia) entre ellas.
+    print("\n" + "-" * 60)
+    print("Analisis extra: PERMANOVA multivariado "
+          "(humedad + temperatura + elevacion)")
+    print("-" * 60)
+
+    common_cols = [col for _, col in variables]
+    aligned = meta_indexed.reindex(sample_ids)[common_cols]
+    common_mask = aligned.notna().all(axis=1).to_numpy()
+    common_pos = np.where(common_mask)[0]
+    common_dist = dist[np.ix_(common_pos, common_pos)]
+    common_predictors = aligned.to_numpy()[common_pos].astype(float)
+
+    f_multi, r2_multi, p_multi = permanova_multivariate(
+        common_dist, common_predictors, seed=RANDOM_SEED
+    )
+
+    # R2 individual de cada variable en ese mismo subconjunto de
+    # muestras, para comparar "sola" vs "combinada" en igualdad
+    # de condiciones.
+    individual_rows = []
+    for i, (label, column) in enumerate(variables):
+        x = common_predictors[:, i]
+        f_uni, r2_uni, p_uni = permanova(
+            common_dist, x, seed=RANDOM_SEED
+        )
+        individual_rows.append(
+            {"variable": label, "R2_individual": r2_uni}
+        )
+
+    sum_r2_individual = sum(
+        row["R2_individual"] for row in individual_rows
+    )
+
+    multi_table = pd.DataFrame(individual_rows)
+    multi_table["R2_combinado"] = r2_multi
+    multi_table["F_combinado"] = f_multi
+    multi_table["p_valor_combinado"] = p_multi
+    multi_table["suma_R2_individuales"] = sum_r2_individual
+    multi_table["n"] = len(common_pos)
+    multi_table["n_permutaciones"] = N_PERMUTATIONS
+
+    print(
+        f"\nModelo combinado: F = {f_multi:.4f}, "
+        f"R2 = {r2_multi:.4f}, p-valor = {p_multi:.4f}, "
+        f"n = {len(common_pos)}"
+    )
+    print(
+        f"Suma de R2 individuales (mismo subconjunto): "
+        f"{sum_r2_individual:.4f}"
+    )
+    print(
+        f"Diferencia (redundancia entre variables): "
+        f"{sum_r2_individual - r2_multi:.4f}"
+    )
+    print(multi_table)
+
+    multi_table.to_csv(
+        os.path.join(OUT_DIR, "h3_permanova_multivariado.tsv"),
         sep="\t",
         index=False,
     )
