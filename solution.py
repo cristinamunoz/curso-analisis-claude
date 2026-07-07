@@ -115,3 +115,65 @@ plt.savefig("outputs/fig1_shannon_vs_avgsoilrh.png", dpi=300)
 plt.savefig("outputs/fig1_shannon_vs_avgsoilrh.pdf")
 plt.close()
 print("Figura guardada: outputs/fig1_shannon_vs_avgsoilrh.png/.pdf")
+
+# =============================================================
+# PASO 2 — Diversidad beta: Bray-Curtis + PCoA (H2)
+# =============================================================
+from scipy.spatial.distance import cdist
+
+# --- 8. Matriz de distancias Bray-Curtis ---
+abundancias_rel = abundancias.div(abundancias.sum(axis=1), axis=0)
+
+dist_matrix = cdist(
+    abundancias_rel, abundancias_rel, metric="braycurtis"
+)
+
+# --- 9. PCoA ---
+centrada = dist_matrix ** 2
+centrada = -0.5 * (
+    centrada
+    - centrada.mean(axis=1, keepdims=True)
+    - centrada.mean(axis=0, keepdims=True)
+    + centrada.mean()
+)
+eigenvalues, eigenvectors = np.linalg.eigh(centrada)
+idx = np.argsort(eigenvalues)[::-1]
+eigenvalues = eigenvalues[idx]
+eigenvectors = eigenvectors[:, idx]
+
+eigenvalues_pos = np.maximum(eigenvalues, 0)
+coords = eigenvectors[:, :2] * np.sqrt(eigenvalues_pos[:2])
+varianza_explicada = eigenvalues_pos / eigenvalues_pos.sum() * 100
+
+# --- 10. Figura PCoA coloreada por humedad ---
+fig, ax = plt.subplots(figsize=(8, 6))
+humedad_pcoa = metadata.loc[
+    abundancias_rel.index, "average-soil-relative-humidity"
+]
+sc = ax.scatter(
+    coords[:, 0], coords[:, 1],
+    c=humedad_pcoa, cmap="viridis",
+    s=80, edgecolors="grey", linewidths=0.5, alpha=0.9
+)
+plt.colorbar(sc, ax=ax, label="Humedad relativa del suelo (%)")
+ax.set_xlabel(f"PC1 ({varianza_explicada[0]:.1f}% varianza)")
+ax.set_ylabel(f"PC2 ({varianza_explicada[1]:.1f}% varianza)")
+ax.set_title(
+    "PCoA Bray-Curtis — composicion de comunidades microbianas\n"
+    "Color = humedad relativa del suelo"
+)
+plt.tight_layout()
+plt.savefig("outputs/fig2_pcoa_braycurtis.png", dpi=300)
+plt.savefig("outputs/fig2_pcoa_braycurtis.pdf")
+plt.close()
+print("Figura guardada: outputs/fig2_pcoa_braycurtis.png/.pdf")
+
+# Guardar varianza explicada
+varianza_df = pd.DataFrame({
+    "Eje": ["PC1", "PC2"],
+    "Varianza_explicada_pct": varianza_explicada[:2].round(2)
+})
+varianza_df.to_csv(
+    "outputs/h2_varianza_explicada_pcoa.tsv", sep="\t", index=False
+)
+print("Tabla guardada: outputs/h2_varianza_explicada_pcoa.tsv")
