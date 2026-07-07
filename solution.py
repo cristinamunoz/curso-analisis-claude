@@ -1,15 +1,25 @@
-"""Diversidad alfa (Shannon) vs. aridez del suelo (Atacama).
+"""Diversidad y composicion microbiana vs. aridez del suelo
+(desierto de Atacama).
 
 Pregunta biologica: a medida que el suelo se vuelve mas arido,
-como cambia la diversidad de la comunidad microbiana?
+como cambian la diversidad y la composicion de la comunidad
+microbiana?
 
 Hipotesis H1: a menor humedad relativa del suelo (AvgSoilRH),
 menor diversidad alfa (Shannon).
+
+Hipotesis H2: los sitios mas aridos (Yungay) se separan de los
+menos aridos (Baquedano) en la ordenacion PCoA a lo largo del
+primer eje.
+
+Hipotesis H3: AvgSoilRH explica mas varianza composicional que
+temperatura o elevacion.
 """
 
 import numpy as np
 import pandas as pd
 from scipy import stats
+from scipy.spatial.distance import pdist, squareform
 import matplotlib.pyplot as plt
 
 RUTA_METADATA = "data/metadata.tsv"
@@ -18,6 +28,11 @@ CARPETA_SALIDA = "outputs"
 
 COLUMNA_HUMEDAD = "average-soil-relative-humidity"
 COLUMNA_TRANSECTO = "transect-name"
+COLUMNA_TEMPERATURA = "average-soil-temperature"
+COLUMNA_ELEVACION = "elevation"
+
+N_PERMUTACIONES = 999
+SEMILLA_PERMUTACIONES = 0
 
 
 def cargar_datos():
@@ -246,6 +261,220 @@ def guardar_tabla_resultado(resultado):
     print(f"\nTabla de resultados guardada en: {ruta}")
 
 
+def calcular_bray_curtis(abundancias):
+    """Matriz de distancias Bray-Curtis entre muestras.
+
+    abundancias: OTUs en filas, muestras en columnas.
+    """
+    conteos = abundancias.T.to_numpy(dtype=float)
+    distancias = squareform(pdist(conteos, metric="braycurtis"))
+    return pd.DataFrame(
+        distancias,
+        index=abundancias.columns,
+        columns=abundancias.columns,
+    )
+
+
+def _matriz_gower(distancias):
+    """Centrado de Gower de la matriz de distancias al cuadrado.
+
+    Es la base tanto del PCoA como del PERMANOVA (McArdle &
+    Anderson, 2001): ambos parten de la misma matriz G.
+    """
+    d2 = distancias.to_numpy() ** 2
+    n = d2.shape[0]
+    centrado = np.eye(n) - np.ones((n, n)) / n
+    return centrado @ d2 @ centrado * -0.5
+
+
+def calcular_pcoa(distancias):
+    """PCoA por descomposicion espectral de la matriz de Gower.
+
+    Devuelve las coordenadas de PC1/PC2 por muestra y el
+    porcentaje de varianza que explica cada eje (sobre la suma
+    de autovalores positivos, convencion habitual cuando la
+    distancia no es estrictamente euclidiana).
+    """
+    g = _matriz_gower(distancias)
+    autovalores, autovectores = np.linalg.eigh(g)
+
+    orden = np.argsort(autovalores)[::-1]
+    autovalores = autovalores[orden]
+    autovectores = autovectores[:, orden]
+
+    autovalores_pos = np.clip(autovalores, 0, None)
+    coordenadas = autovectores * np.sqrt(autovalores_pos)
+    varianza_total = autovalores_pos.sum()
+    porcentaje = autovalores_pos / varianza_total * 100
+
+    tabla_coordenadas = pd.DataFrame(
+        coordenadas[:, :2],
+        index=distancias.index,
+        columns=["PC1", "PC2"],
+    )
+    return tabla_coordenadas, porcentaje[:2]
+
+
+def graficar_pcoa(coordenadas, humedad, porcentaje):
+    """PCoA coloreado por gradiente continuo de humedad (viridis)."""
+    humedad = humedad.reindex(coordenadas.index)
+    con_dato = humedad.notna()
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    dispersión = ax.scatter(
+        coordenadas.loc[con_dato, "PC1"],
+        coordenadas.loc[con_dato, "PC2"],
+        c=humedad[con_dato],
+        cmap="viridis",
+        s=70,
+        edgecolor="black",
+        linewidth=0.3,
+    )
+    if (~con_dato).any():
+        ax.scatter(
+            coordenadas.loc[~con_dato, "PC1"],
+            coordenadas.loc[~con_dato, "PC2"],
+            color="lightgray",
+            edgecolor="black",
+            linewidth=0.3,
+            s=70,
+            label="Sin dato de humedad",
+        )
+        ax.legend(loc="best")
+
+    barra_color = fig.colorbar(dispersión, ax=ax)
+    barra_color.set_label("Humedad relativa promedio del suelo (%)")
+
+    ax.set_xlabel(f"PC1 ({porcentaje[0]:.1f}% de varianza)")
+    ax.set_ylabel(f"PC2 ({porcentaje[1]:.1f}% de varianza)")
+    ax.set_title(
+        "PCoA (Bray-Curtis) de la composicion microbiana del suelo"
+    )
+    fig.tight_layout()
+
+    fig.savefig(
+        f"{CARPETA_SALIDA}/fig2_pcoa_braycurtis.png", dpi=300
+    )
+    fig.savefig(f"{CARPETA_SALIDA}/fig2_pcoa_braycurtis.pdf")
+    plt.close(fig)
+
+
+def guardar_tabla_pcoa(porcentaje):
+    """Guarda el porcentaje de varianza explicada por PC1/PC2."""
+    tabla = pd.DataFrame(
+        {
+            "eje": ["PC1", "PC2"],
+            "porcentaje_varianza": porcentaje,
+        }
+    )
+    ruta = f"{CARPETA_SALIDA}/h2_varianza_explicada_pcoa.tsv"
+    tabla.to_csv(ruta, sep="\t", index=False)
+    print(f"\nTabla de varianza del PCoA guardada en: {ruta}")
+
+
+def permanova_variable(distancias, variable, nombre, columna):
+    """PERMANOVA univariada de composicion ~ una variable continua.
+
+    Metodo de McArdle & Anderson (2001): parte de la misma
+    matriz de Gower que el PCoA y evalua la significancia del F
+    observado por permutacion de la variable (999 veces, por
+    defecto). Las muestras sin dato en `variable` se excluyen
+    solo para esta variable.
+    """
+    valido = variable.notna()
+    ids = variable.index[valido]
+    excluidas = (~valido).sum()
+    if excluidas:
+        print(
+            f"AVISO: {nombre} -- se excluyeron {excluidas} "
+            f"muestra(s) sin dato de {columna}."
+        )
+
+    sub_distancias = distancias.loc[ids, ids]
+    x = variable.loc[ids].to_numpy(dtype=float)
+    n = len(ids)
+
+    g = _matriz_gower(sub_distancias)
+    ss_total = np.trace(g)
+
+    def f_y_r2(x_actual):
+        diseño = np.column_stack([np.ones(n), x_actual])
+        proyeccion = diseño @ np.linalg.pinv(
+            diseño.T @ diseño
+        ) @ diseño.T
+        ss_modelo = np.trace(proyeccion @ g)
+        ss_residual = ss_total - ss_modelo
+        gl_residual = n - 2
+        f_obs = (ss_modelo / 1) / (ss_residual / gl_residual)
+        r2 = ss_modelo / ss_total
+        return f_obs, r2
+
+    f_obs, r2_obs = f_y_r2(x)
+
+    generador = np.random.default_rng(SEMILLA_PERMUTACIONES)
+    extremos = 0
+    for _ in range(N_PERMUTACIONES):
+        x_permutado = generador.permutation(x)
+        f_permutado, _ = f_y_r2(x_permutado)
+        if f_permutado >= f_obs:
+            extremos += 1
+    p_valor = (extremos + 1) / (N_PERMUTACIONES + 1)
+
+    return {
+        "variable": nombre,
+        "columna_original": columna,
+        "F": f_obs,
+        "R2": r2_obs,
+        "p_valor": p_valor,
+        "n_permutaciones": N_PERMUTACIONES,
+        "n": n,
+    }
+
+
+def modelar_composicion_vs_ambiente(datos, distancias):
+    """PERMANOVA de composicion ~ humedad, temperatura, elevacion.
+
+    Reporta F, R2, p-valor y n por variable, ordenado de mayor a
+    menor R2 (regla del curso).
+    """
+    variables = [
+        ("humedad_relativa", COLUMNA_HUMEDAD),
+        ("temperatura", COLUMNA_TEMPERATURA),
+        ("elevacion", COLUMNA_ELEVACION),
+    ]
+    resultados = [
+        permanova_variable(
+            distancias, datos[columna], nombre, columna
+        )
+        for nombre, columna in variables
+    ]
+    tabla = pd.DataFrame(resultados).sort_values(
+        "R2", ascending=False
+    )
+
+    print(
+        "\nPERMANOVA univariada -- composicion ~ variable "
+        "ambiental (999 permutaciones):"
+    )
+    print(tabla.round(4).to_string(index=False))
+
+    for _, fila in tabla.iterrows():
+        if fila["n"] < 10:
+            print(
+                f"\nAVISO: {fila['variable']} tiene n={fila['n']}"
+                " (< 10) -- las permutaciones pueden ser "
+                "insuficientes."
+            )
+
+    ruta = (
+        f"{CARPETA_SALIDA}/"
+        "h3_permanova_variables_ambientales.tsv"
+    )
+    tabla.to_csv(ruta, sep="\t", index=False)
+    print(f"\nTabla de PERMANOVA guardada en: {ruta}")
+    return tabla
+
+
 def main():
     metadata, abundancias = cargar_datos()
     shannon = calcular_shannon(abundancias)
@@ -259,6 +488,13 @@ def main():
     resultado, reg = regresion_shannon_vs_humedad(datos)
     graficar_regresion(datos, reg)
     guardar_tabla_resultado(resultado)
+
+    distancias = calcular_bray_curtis(abundancias)
+    coordenadas, porcentaje = calcular_pcoa(distancias)
+    graficar_pcoa(coordenadas, datos[COLUMNA_HUMEDAD], porcentaje)
+    guardar_tabla_pcoa(porcentaje)
+
+    modelar_composicion_vs_ambiente(datos, distancias)
 
 
 if __name__ == "__main__":
