@@ -16,11 +16,10 @@ repositorio.
 
 <!-- Reemplaza este bloque con tu información antes del día 2 -->
 
-Soy ecóloga/o microbiana/o. No tengo experiencia previa en
-programación ni en Python. Tengo conocimientos básicos de
-estadística (regresión, correlación) y de ecología de comunidades.
-Necesito que me expliques los resultados en lenguaje biológico
-además de estadístico.
+Soy ecólogo experto en ecología de macroalgas, recién comenzando en el estudio de ecología microbiana. No tengo experiencia previa en
+programación ni en Python. Tengo conocimientos en
+estadística (regresión, correlación) y de ecología de comunidades, por lo tanto,
+necesito que me expliques los resultados en lenguaje científico, incluyendo los resultados escritos y como tablas, además de una interpretación ecológica de ellos.
 
 ## Sobre el curso
 
@@ -166,9 +165,8 @@ cada prompt.
 **Trigger:** "genera una figura", "haz un plot", "visualiza",
 "grafica"
 
-1. Usa paleta daltónica: `viridis` para gradientes continuos,
-   `Set2` para grupos discretos.
-2. Exporta en PNG a 300 dpi y en PDF vectorial.
+1. Usa paleta "sentinela quad" disponible en https://color.adobe.com/es/explore
+2. Exporta en formato SVG a 900 dpi
 3. Guarda ambos archivos en `outputs/` con nombre descriptivo en
    inglés (ej. `fig1_shannon_vs_avgsoilrh.png`).
 4. Tamaño de figura por defecto: 8 × 6 pulgadas.
@@ -179,8 +177,7 @@ cada prompt.
 
 ### Cuando analices diversidad alfa
 
-**Trigger:** "analiza diversidad alfa", "calcula Shannon",
-"diversidad por muestra", "índice de diversidad"
+**Trigger:** "calcula riqueza observa ","calcula Shannon"
 
 1. Muestra primero un resumen estadístico de los índices (media,
    mediana, rango) por transecto (Baquedano vs. Yungay).
@@ -188,28 +185,20 @@ cada prompt.
    regresión.
 3. Usa `AvgSoilRH` como variable independiente principal salvo
    que se indique otra.
-4. Reporta siempre: coeficiente de correlación (r o Spearman ρ),
-   R², p-valor y n.
-5. Si R² < 0.05, avisa antes de continuar — puede indicar un
-   problema con los datos o el análisis.
+
+5. Has un test de Kruskal-Wallis seguido por un Dunn’s post-hoc test si es necesario.
 
 ### Cuando analices composición (beta-diversidad)
 
-**Trigger:** "analiza composición", "Bray-Curtis", "PCoA",
-"beta-diversidad", "composición de comunidades"
+**Trigger:** "Non-metric Multidimensional Scaling", "PERMANOVA", "Analysis of Similarities", "multivariate homogeneity of group dispersions"
 
-1. Usa distancias Bray-Curtis salvo que se especifique otra
-   métrica.
-2. Para la ordenación, genera PCoA por defecto. Colorea por
-   gradiente continuo de `AvgSoilRH` con paleta `viridis`.
-3. Muestra el porcentaje de varianza explicado en los ejes de
-   la ordenación (PC1 y PC2).
-4. Para modelar composición ~ variables ambientales, usa dbRDA
-   o PERMANOVA con 999 permutaciones.
-5. Reporta para cada variable: F, R² y p-valor; ordena la tabla
-   de mayor a menor R².
-6. Avisa si n < 10 por grupo — las permutaciones pueden ser
-   insuficientes.
+
+
+1. Has un Non-metric Multidimensional Scaling (NMDS) ordinations based on Bray-Curtis distances at the OTU level.
+2. Has un analisis de PERMANOVA para evaluat las diferencencias en compiscion entre los sitios.
+3. Has un analysis of Similarities (ANOSIM).
+4. Has un analisis de multivariate homogeneity of group dispersions with BETADISPER.
+5. Usa 999 permutations para todos los analisis que lo necesiten.
 
 ### Cuando revises resultados
 
@@ -229,9 +218,7 @@ cada prompt.
 
 ## ✏️ Notas personales
 
-<!-- Espacio libre para contexto adicional que quieras agregar
-     durante el curso: observaciones del dataset, decisiones de
-     análisis, preguntas para el instructor, etc. -->
+Escribe los resultados en ingles tipo The Isme journal.
 
 ## Paper base
 

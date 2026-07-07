@@ -1,0 +1,2 @@
+method name	test statistic name	sample size	number of groups	test statistic	p-value	number of permutations
+ANOSIM	R	54	2	0.056666992282895325	0.038	999
