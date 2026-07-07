@@ -2,8 +2,10 @@
 Analisis de diversidad alfa (Shannon) y beta (Bray-Curtis / PCoA)
 entre los transectos Baquedano y Yungay del desierto de Atacama.
 
-Reproduce parcialmente H1 (Shannon vs. humedad relativa del suelo)
-y H2 (separacion de transectos en la ordenacion PCoA).
+Reproduce H1 (Shannon vs. humedad relativa del suelo), H2
+(separacion de transectos en la ordenacion PCoA) y H3 (PERMANOVA
+univariada de humedad, temperatura y elevacion sobre la
+composicion, distancias Bray-Curtis).
 """
 
 import os
@@ -230,6 +232,103 @@ def graficar_pcoa(resultado_pcoa, metadata):
     print(resumen.round(4))
 
 
+# --- 4. PERMANOVA univariada (variables ambientales continuas) -----
+
+def permanova_variable_continua(dist_df, variable, n_perm=999,
+                                 semilla=0):
+    """PERMANOVA de una distancia contra una variable continua.
+
+    Implementa la particion de sumas de cuadrados de McArdle y
+    Anderson (2001), equivalente a un PERMANOVA/adonis univariado:
+    regresion de la matriz de distancias (centrada a la Gower)
+    contra la variable ambiental, con significancia evaluada por
+    permutacion de las muestras.
+    """
+    ids = [i for i in dist_df.index if not pd.isna(variable[i])]
+    d = dist_df.loc[ids, ids].to_numpy()
+    x = variable.loc[ids].to_numpy(dtype=float)
+    n = len(ids)
+
+    # Matriz de distancias centrada a la Gower (G).
+    a = -0.5 * (d ** 2)
+    centrado = np.eye(n) - np.ones((n, n)) / n
+    g = centrado @ a @ centrado
+    suma_cuadrados_total = np.trace(g)
+
+    def suma_cuadrados_regresion(x_valores):
+        diseno = np.column_stack([np.ones(n), x_valores])
+        hat = diseno @ np.linalg.pinv(diseno.T @ diseno) @ diseno.T
+        return np.trace(hat @ g)
+
+    ss_reg = suma_cuadrados_regresion(x)
+    ss_res = suma_cuadrados_total - ss_reg
+    df_reg, df_res = 1, n - 2
+    f_observado = (ss_reg / df_reg) / (ss_res / df_res)
+    r2 = ss_reg / suma_cuadrados_total
+
+    generador = np.random.default_rng(semilla)
+    mayores_o_iguales = 0
+    for _ in range(n_perm):
+        permutacion = generador.permutation(n)
+        ss_reg_perm = suma_cuadrados_regresion(x[permutacion])
+        ss_res_perm = suma_cuadrados_total - ss_reg_perm
+        f_perm = (ss_reg_perm / df_reg) / (ss_res_perm / df_res)
+        if f_perm >= f_observado:
+            mayores_o_iguales += 1
+    p_valor = (mayores_o_iguales + 1) / (n_perm + 1)
+
+    return f_observado, r2, p_valor, n
+
+
+def permanova_variables_ambientales(abundancias, metadata):
+    """PERMANOVA univariada de humedad, temperatura y elevacion."""
+    tabla = abundancias.T
+    distancias = beta_diversity(
+        "braycurtis", tabla.values, ids=tabla.index
+    )
+    dist_df = distancias.to_data_frame()
+
+    variables = [
+        ("humedad_relativa", "average-soil-relative-humidity"),
+        ("temperatura", "average-soil-temperature"),
+        ("elevacion", "elevation"),
+    ]
+
+    filas = []
+    for nombre, columna in variables:
+        n_validos = metadata[columna].notna().sum()
+        if n_validos < 10:
+            print(
+                f"\nAVISO: {nombre} tiene solo {n_validos} muestras "
+                "validas (< 10). Las permutaciones pueden ser "
+                "insuficientes."
+            )
+        f, r2, p, n = permanova_variable_continua(
+            dist_df, metadata[columna]
+        )
+        filas.append({
+            "variable": nombre, "columna_original": columna,
+            "F": f, "R2": r2, "p_valor": p,
+            "n_permutaciones": 999, "n": n,
+        })
+
+    resultado = pd.DataFrame(filas).sort_values(
+        "R2", ascending=False
+    ).reset_index(drop=True)
+    resultado.to_csv(
+        os.path.join(
+            CARPETA_SALIDA, "h3_permanova_variables_ambientales.tsv"
+        ),
+        sep="\t", index=False,
+    )
+    print(
+        "\nPERMANOVA univariada de variables ambientales "
+        "(Bray-Curtis, 999 permutaciones):"
+    )
+    print(resultado.round(4))
+    return resultado
+
+
 # --- Ejecucion principal --------------------------------------------
 
 def main():
@@ -246,6 +345,8 @@ def main():
 
     resultado_pcoa = calcular_pcoa(abundancias)
     graficar_pcoa(resultado_pcoa, metadata)
+
+    permanova_variables_ambientales(abundancias, metadata)
 
     print("\nListo. Figuras y tablas guardadas en 'outputs/'.")
 
