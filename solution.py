@@ -112,9 +112,6 @@ def run_h1(abund, metadata):
     fig.savefig(
         os.path.join(OUT_DIR, "fig1_shannon_por_transecto.png"), dpi=300
     )
-    fig.savefig(
-        os.path.join(OUT_DIR, "fig1_shannon_por_transecto.pdf")
-    )
     plt.close(fig)
 
     # 3) Correlacion de Spearman (mismo metodo que el paper).
@@ -203,9 +200,6 @@ def run_h1(abund, metadata):
     fig.tight_layout()
     fig.savefig(
         os.path.join(OUT_DIR, "fig1_shannon_vs_avgsoilrh.png"), dpi=300
-    )
-    fig.savefig(
-        os.path.join(OUT_DIR, "fig1_shannon_vs_avgsoilrh.pdf")
     )
     plt.close(fig)
 
@@ -387,7 +381,6 @@ def run_h2_h3(abund, metadata):
     fig.savefig(
         os.path.join(OUT_DIR, "fig2_pcoa_braycurtis.png"), dpi=300
     )
-    fig.savefig(os.path.join(OUT_DIR, "fig2_pcoa_braycurtis.pdf"))
     plt.close(fig)
 
     # H3: PERMANOVA univariado por variable ambiental.
