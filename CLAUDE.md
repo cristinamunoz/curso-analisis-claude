@@ -16,11 +16,11 @@ repositorio.
 
 <!-- Reemplaza este bloque con tu información antes del día 2 -->
 
-Soy ecóloga/o microbiana/o. No tengo experiencia previa en
-programación ni en Python. Tengo conocimientos básicos de
-estadística (regresión, correlación) y de ecología de comunidades.
-Necesito que me expliques los resultados en lenguaje biológico
-además de estadístico.
+Soy ecóloga microbiana, con mas conocimiento en poblaciones y comunidades vegetales. No tengo experiencia previa en
+programación ni en Python, principalmente me manejo mejor con R, mi computadora es Windows y e la primera vez que trabajo en Claude en la terminal. Tengo conocimientos medios de
+estadística de comunidades (regresión, correlación) y de ecología de comunidades.
+Necesito que me expliques los resultados en lenguaje ecológico
+además de estadístico. Este es un ejercicio del curso pero me gustaría después comenzar a trabajar con este formato
 
 ## Sobre el curso
 
@@ -67,6 +67,8 @@ dos veces sin consultar primero.
 
 6. **Verificación biológica**: al terminar cada análisis, pregunta
 si el resultado tiene sentido biológico antes de continuar.
+
+7. Cada vez que crees o ejecutes un archivo haz git add y git commit
 
 ## Estructura del repositorio
 
@@ -176,6 +178,11 @@ cada prompt.
    unidades, leyenda si hay más de un grupo.
 6. Si es un scatter con regresión, incluye la banda de confianza
    al 95 % y muestra R² y p-valor en el gráfico.
+
+### Cuando veas composición 
+1. haz una grafica de barras acumulativas para los dos transectos (Baquedano vs. Yungay)
+2. Donde se muestre 10 phylos mas abundantes
+
 
 ### Cuando analices diversidad alfa
 
