@@ -638,11 +638,66 @@ def run_elevation_exploration(metadata):
     )
 
 
+def run_shannon_vs_elevation(abund, metadata):
+    """Extra: diversidad Shannon vs elevacion, como variable
+    alternativa a AvgSoilRH (motivado por la fuerte relacion
+    elevacion-humedad encontrada en el analisis anterior)."""
+    print("\n" + "=" * 60)
+    print("Extra: diversidad Shannon vs elevacion")
+    print("=" * 60)
+
+    shannon = abund.apply(shannon_index, axis=0)
+    shannon.name = "shannon"
+    shannon_df = shannon.reset_index()
+    shannon_df.columns = ["sample-id", "shannon"]
+
+    merged = metadata.merge(shannon_df, on="sample-id", how="inner")
+    merged = merged.dropna(subset=["shannon", "elevation"])
+
+    x = merged["elevation"].to_numpy()
+    y = merged["shannon"].to_numpy()
+
+    result = scatter_with_fit(
+        x,
+        y,
+        "Elevation (m a.s.l.)",
+        "Shannon diversity index",
+        "Shannon diversity vs. elevation",
+        os.path.join(OUT_DIR, "fig1b_shannon_vs_elevation.png"),
+    )
+
+    print(
+        f"rho = {result['rho']:.4f}, p = {result['p_spearman']:.6f}, "
+        f"R2 = {result['r_squared']:.4f}, n = {result['n']}"
+    )
+
+    table = pd.DataFrame(
+        [
+            {
+                "variable_x": "elevation",
+                "variable_y": "shannon",
+                "spearman_rho": result["rho"],
+                "p_valor": result["p_spearman"],
+                "r_squared": result["r_squared"],
+                "n": result["n"],
+            }
+        ]
+    )
+    table.to_csv(
+        os.path.join(
+            OUT_DIR, "h1b_correlacion_shannon_vs_elevacion.tsv"
+        ),
+        sep="\t",
+        index=False,
+    )
+
+
 def main():
     abund, metadata = load_data()
     run_h1(abund, metadata)
     run_h2_h3(abund, metadata)
     run_elevation_exploration(metadata)
+    run_shannon_vs_elevation(abund, metadata)
 
 
 if __name__ == "__main__":
