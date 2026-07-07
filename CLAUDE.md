@@ -59,7 +59,7 @@ confirmación explícita del usuario.
 
 4. **Outputs**: guarda todas las figuras y tablas resultantes en
 `outputs/` dentro del branch personal. Nunca escribas en `data/`
-ni en `expected_outputs/`.
+ni en `expected_outputs/`. Cada vez que generes algo quiero que lo guardes tambien a nivel local usando git add + git commit
 
 5. **Errores**: si encuentras un error, muéstralo completo y
 explícalo en lenguaje simple. No intentes corregirlo más de
@@ -67,6 +67,7 @@ dos veces sin consultar primero.
 
 6. **Verificación biológica**: al terminar cada análisis, pregunta
 si el resultado tiene sentido biológico antes de continuar.
+
 
 ## Estructura del repositorio
 
