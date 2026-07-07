@@ -1,0 +1,4 @@
+Variable	F	R2	p-valor	n	betadisper_p	Advertencia
+Elevacion	2.659	0.094	0.001	54	0.308	
+Humedad (AvgSoilRH)	2.349	0.089	0.001	51	0.056	
+Temperatura	2.3	0.087	0.001	51	0.58	

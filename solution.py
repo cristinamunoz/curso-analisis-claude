@@ -177,3 +177,60 @@ varianza_df.to_csv(
     "outputs/h2_varianza_explicada_pcoa.tsv", sep="\t", index=False
 )
 print("Tabla guardada: outputs/h2_varianza_explicada_pcoa.tsv")
+
+# =============================================================
+# PASO 3 — PERMANOVA por variable ambiental (H3)
+# =============================================================
+from skbio.stats.distance import DistanceMatrix, permanova, permdisp
+
+# --- 11. PERMANOVA por variable ambiental ---
+dm = DistanceMatrix(dist_matrix, ids=list(abundancias_rel.index))
+
+variables = {
+    "Humedad (AvgSoilRH)": "average-soil-relative-humidity",
+    "Temperatura": "average-soil-temperature",
+    "Elevacion": "elevation"
+}
+
+resultados_h3 = []
+for nombre, col in variables.items():
+    datos = metadata[col].dropna()
+    muestras_validas = [m for m in dm.ids if m in datos.index]
+    dm_sub = dm.filter(muestras_validas)
+
+    grupos = pd.qcut(
+        datos.loc[muestras_validas], q=3,
+        labels=["bajo", "medio", "alto"]
+    )
+
+    res_perm = permanova(dm_sub, grupos, permutations=999)
+    res_disp = permdisp(dm_sub, grupos, permutations=999)
+
+    # R² calculado desde F y grados de libertad
+    n = len(muestras_validas)
+    k = 3  # numero de grupos (terciles)
+    F = res_perm["test statistic"]
+    df_a = k - 1
+    df_w = n - k
+    r2 = (F * df_a) / (F * df_a + df_w)
+
+    dispersion_sig = res_disp["p-value"] < 0.05
+    resultados_h3.append({
+        "Variable": nombre,
+        "F": round(F, 3),
+        "R2": round(r2, 3),
+        "p-valor": round(res_perm["p-value"], 4),
+        "n": n,
+        "betadisper_p": round(res_disp["p-value"], 4),
+        "Advertencia": "Dispersion significativa" if dispersion_sig else ""
+    })
+
+tabla_h3 = pd.DataFrame(resultados_h3).sort_values("R2", ascending=False)
+print("\nPERMANOVA por variable ambiental (H3):")
+print(tabla_h3.to_string(index=False))
+
+tabla_h3.to_csv(
+    "outputs/h3_permanova_variables_ambientales.tsv",
+    sep="\t", index=False
+)
+print("Tabla guardada: outputs/h3_permanova_variables_ambientales.tsv")
