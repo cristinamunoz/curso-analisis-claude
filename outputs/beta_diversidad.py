@@ -1,6 +1,8 @@
 """Analisis de composicion (beta-diversidad): H2 y H3.
 
-H2: PCoA con distancias Bray-Curtis, coloreado por AvgSoilRH.
+H2: PCoA con distancias Bray-Curtis, coloreado por AvgSoilRH, mas
+    PERMANOVA categorica (Baquedano vs. Yungay) para probar la
+    separacion por transecto con un p-valor formal.
 H3: PERMANOVA univariada de humedad, temperatura y elevacion
     sobre la matriz de distancias Bray-Curtis.
 """
@@ -164,6 +166,28 @@ def main():
         bbox_inches="tight",
     )
     plt.close(fig)
+
+    # --- H2: PERMANOVA categorica por transecto ---
+    grupo_yungay = (metadata["transect-name"] == "Yungay").astype(
+        float
+    ).values
+    f_transecto, r2_transecto, p_transecto = permanova_continua(
+        distancias, grupo_yungay, N_PERMUTACIONES, rng
+    )
+    tabla_transecto = pd.DataFrame([{
+        "variable": "transect-name (Baquedano=0, Yungay=1)",
+        "F": f_transecto,
+        "R2": r2_transecto,
+        "p_valor": p_transecto,
+        "n_permutaciones": N_PERMUTACIONES,
+        "n": len(metadata),
+    }])
+    print("\nPERMANOVA categorica por transecto:")
+    print(tabla_transecto.to_string(index=False))
+    tabla_transecto.to_csv(
+        f"{CARPETA_SALIDA}/h2_permanova_transecto.tsv",
+        sep="\t", index=False,
+    )
 
     # --- H3: PERMANOVA ---
     filas = []

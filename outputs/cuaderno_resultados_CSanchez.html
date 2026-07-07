@@ -290,6 +290,38 @@ PERMANOVA:  F = (SC_modelo/1) / (SC_residual/(n-2))
       </figure>
     </div>
 
+    <h3 style="font-size:18px; margin: 8px 0 0;">H2 &middot; PERMANOVA categorica por transecto</h3>
+    <p>La lectura visual del PCoA sugiere una separacion parcial
+      entre transectos. Para no quedarnos solo con la impresion
+      visual, se corrio una PERMANOVA usando <code>transect-name</code>
+      (Baquedano vs. Yungay) como variable de grupo, sobre la
+      matriz Bray-Curtis completa (54 muestras).</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Variable de grupo</th><th>F</th><th>R&sup2;</th>
+            <th>p-valor</th><th>n</th></tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight">
+            <td>Transecto (Baquedano vs. Yungay)</td>
+            <td class="num">2.044</td><td class="num">0.0378</td>
+            <td class="num">0.001</td><td class="num">54</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout ok">
+      <b>H2 &middot; confirmada, con efecto debil:</b> la
+      separacion por transecto es estadisticamente significativa
+      (p=0.001) &mdash; no es casualidad que Baquedano y Yungay
+      ocupen zonas algo distintas del PCoA. Pero el tamano del
+      efecto es chico (R&sup2;=0.038, el mas bajo de todos los
+      que probamos en este cuaderno): el transecto influye en la
+      composicion, mas no la determina. Esto concuerda con la
+      lectura visual: solapamiento real, pero no por azar.
+    </div>
+
+    <h3 style="font-size:18px; margin: 32px 0 0;">H3 &middot; PERMANOVA de variables ambientales continuas</h3>
     <div class="tbl-wrap">
       <table>
         <thead>
@@ -297,7 +329,8 @@ PERMANOVA:  F = (SC_modelo/1) / (SC_residual/(n-2))
             <th>p-valor</th><th>n</th></tr>
         </thead>
         <tbody>
-          <tr><td>Temperatura</td><td class="num">3.000</td>
+          <tr class="row-highlight">
+            <td>Temperatura</td><td class="num">3.000</td>
             <td class="num">0.0577</td><td class="num">0.001</td>
             <td class="num">51</td></tr>
           <tr><td>Elevacion</td><td class="num">2.930</td>
@@ -311,9 +344,11 @@ PERMANOVA:  F = (SC_modelo/1) / (SC_residual/(n-2))
     </div>
     <div class="callout">
       <b>Lectura:</b> las tres variables son estadisticamente
-      significativas (p=0.001) pero cada una explica solo
-      <b>~5&ndash;6%</b> de la composicion por separado &mdash;
-      ver seccion 4 para la comparacion con lo esperado.
+      significativas (p=0.001), pero <b>humedad es la que
+      menos explica de las tres</b> (0.0498, por debajo de
+      temperatura y elevacion) &mdash; justo lo opuesto de lo que
+      planteaba H3. Ver seccion 4 para el detalle de por que se
+      rechaza la comparacion relativa de la hipotesis.
     </div>
   </section>
 
@@ -354,25 +389,37 @@ PERMANOVA:  F = (SC_modelo/1) / (SC_residual/(n-2))
           <tr><td>PERMANOVA R&sup2; humedad</td>
             <td class="num">0.04978</td><td class="num">0.04978</td>
             <td><span class="pill">identico</span></td></tr>
+          <tr><td>PERMANOVA R&sup2; transecto (H2)</td>
+            <td class="num">0.03782</td>
+            <td class="num">&mdash;</td>
+            <td><span class="tag">analisis nuevo</span></td></tr>
         </tbody>
       </table>
     </div>
     <div class="callout ok">
-      <b>Sin discrepancias:</b> los 8 resultados coinciden con la
-      referencia hasta el quinto decimal &mdash; la pipeline
-      (filtrado por interseccion de IDs, calculo de Shannon,
-      PCoA clasico y PERMANOVA por permutaciones) reproduce
-      exactamente la metodologia esperada.
+      <b>Sin discrepancias:</b> los 8 resultados con referencia
+      disponible coinciden hasta el quinto decimal &mdash; la
+      pipeline (filtrado por interseccion de IDs, calculo de
+      Shannon, PCoA clasico y PERMANOVA por permutaciones)
+      reproduce exactamente la metodologia esperada. La fila de
+      "transecto" no tiene comparacion porque
+      <code>expected_outputs/</code> no incluye esa prueba
+      especifica &mdash; la agregamos nosotros para responder H2
+      con un p-valor formal en vez de solo inspeccion visual.
     </div>
     <div class="callout">
-      <b>Unica discrepancia (no numerica, conceptual):</b> la
-      hipotesis H3 anticipaba R&sup2; entre 0.20 y 0.50 para
-      AvgSoilRH, pero el valor real es ~0.05. Causa probable: con
-      1109 OTUs (muchos raros) y una prueba univariada (una
-      variable ambiental a la vez), la señal de cualquier variable
-      individual se diluye; en el paper original el efecto de la
-      aridez se aprecia mejor combinando variables o filtrando
-      OTUs poco abundantes.
+      <b>Discrepancia real: H3 se rechaza en su comparacion
+      relativa.</b> La hipotesis no solo esperaba R&sup2; entre
+      0.20 y 0.50 &mdash;tambien afirmaba que AvgSoilRH explicaria
+      <b>mas</b> varianza que temperatura o elevacion. En los
+      datos, humedad quedo <b>ultima</b> de las tres (R&sup2;=0.0498
+      contra 0.0577 de temperatura y 0.0533 de elevacion). Causa
+      probable: con 1109 OTUs (muchos raros) y una prueba
+      univariada (una variable a la vez), la señal individual de
+      cada variable se diluye y el orden relativo entre variables
+      tan parecidas en magnitud puede invertirse; en el paper
+      original el rol protagonico de la aridez se aprecia mejor
+      combinando variables o filtrando OTUs poco abundantes.
     </div>
     <p style="margin-top:18px">Todas las figuras se exportaron en
       PNG a 300 dpi y en PDF vectorial, guardadas en <code>outputs/</code>:
@@ -394,16 +441,18 @@ PERMANOVA:  F = (SC_modelo/1) / (SC_residual/(n-2))
           las 4 metricas (&rho; 0.41&ndash;0.49, p&lt;0.01).</p>
       </div>
       <div class="gloss-item">
-        <p class="term">H2 &middot; parcial</p>
-        <p>Las muestras humedas tienden a agruparse en el PCoA,
-          pero sin una separacion total entre transectos (PC1
-          solo explica 8.3%).</p>
+        <p class="term">H2 &middot; confirmada (efecto debil)</p>
+        <p>PERMANOVA por transecto: p=0.001, pero R&sup2;=0.038
+          &mdash; la separacion Baquedano/Yungay es real y no
+          azar, pero explica menos que cualquiera de las
+          variables continuas de H3.</p>
       </div>
       <div class="gloss-item">
-        <p class="term">H3 &middot; matizada</p>
+        <p class="term">H3 &middot; rechazada (en su comparacion)</p>
         <p>Humedad, temperatura y elevacion si explican la
-          composicion (p=0.001), pero cada una solo ~5%, no el
-          20&ndash;50% anticipado.</p>
+          composicion (p=0.001, ~5% cada una), pero AvgSoilRH es
+          la que <b>menos</b> explica de las tres &mdash; lo
+          opuesto de lo que planteaba la hipotesis.</p>
       </div>
       <div class="gloss-item">
         <p class="term">En una frase</p>
