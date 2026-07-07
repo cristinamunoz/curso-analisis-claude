@@ -16,7 +16,7 @@ repositorio.
 
 <!-- Reemplaza este bloque con tu información antes del día 2 -->
 
-Soy ecóloga/o microbiana/o. No tengo experiencia previa en
+Soy biotecnologa, candidata a doctora. trabajo en área de microbiología ambiental. No tengo experiencia previa en
 programación ni en Python. Tengo conocimientos básicos de
 estadística (regresión, correlación) y de ecología de comunidades.
 Necesito que me expliques los resultados en lenguaje biológico
@@ -34,37 +34,33 @@ aridez/humedad relativa del suelo y esas métricas, y reproducir
 las figuras del paper.
 
 **Hipótesis:**
-- H1: A menor humedad relativa del suelo (AvgSoilRH), menor
-  diversidad alfa (Shannon).
-- H2: Los sitios más áridos (Yungay) se separan de los menos áridos
-  (Baquedano) en la ordenación PCoA a lo largo del primer eje.
-- H3: AvgSoilRH explica más varianza composicional que temperatura
-  o elevación (R² esperado: 0.20–0.50).
+
+* H1: A menor humedad relativa del suelo (AvgSoilRH), menor
+diversidad alfa (Shannon).
+* H2: Los sitios más áridos (Yungay) se separan de los menos áridos
+(Baquedano) en la ordenación PCoA a lo largo del primer eje.
+* H3: AvgSoilRH explica más varianza composicional que temperatura
+o elevación (R² esperado: 0.20–0.50).
 
 ## Reglas para el agente
 
 1. **Estilo de código**: todo el código en Python debe seguir la
 guía de estilo PEP8, con un largo máximo de línea de 79
 caracteres.
-
 2. **Audiencia**: el curso está dirigido a científicos que no son
 bioinformáticos, con conocimientos básicos de informática. Las
 explicaciones, nombres de variables, mensajes de error y
 comentarios deben ser claros, evitando jerga técnica innecesaria.
-
 3. **Confirmación antes de ejecutar**: nunca ejecutes comandos,
 instalaciones, scripts ni cambios sobre archivos del curso sin
 mostrar antes exactamente qué se va a ejecutar y esperar
 confirmación explícita del usuario.
-
 4. **Outputs**: guarda todas las figuras y tablas resultantes en
 `outputs/` dentro del branch personal. Nunca escribas en `data/`
 ni en `expected_outputs/`.
-
 5. **Errores**: si encuentras un error, muéstralo completo y
 explícalo en lenguaje simple. No intentes corregirlo más de
 dos veces sin consultar primero.
-
 6. **Verificación biológica**: al terminar cada análisis, pregunta
 si el resultado tiene sentido biológico antes de continuar.
 
@@ -140,14 +136,14 @@ carpeta `outputs/` para sus figuras y tablas.
 Las columnas más relevantes de `data/metadata.tsv` para el
 análisis del día 2:
 
-| Columna | Descripción |
-|---|---|
-| `sample-id` | Identificador de muestra (clave para el join con abundancias) |
-| `transect-name` | Transecto: `Baquedano` (BAQ, más húmedo) o `Yungay` (YUN, más árido) |
-| `AvgSoilRH` | Humedad relativa promedio del suelo — variable independiente principal |
-| `temperature` | Temperatura del suelo |
-| `elevation` | Elevación del sitio en metros |
-| `vegetation` | Presencia/ausencia de vegetación |
+|Columna|Descripción|
+|-|-|
+|`sample-id`|Identificador de muestra (clave para el join con abundancias)|
+|`transect-name`|Transecto: `Baquedano` (BAQ, más húmedo) o `Yungay` (YUN, más árido)|
+|`AvgSoilRH`|Humedad relativa promedio del suelo — variable independiente principal|
+|`temperature`|Temperatura del suelo|
+|`elevation`|Elevación del sitio en metros|
+|`vegetation`|Presencia/ausencia de vegetación|
 
 Nota: `average-soil-relative-humidity` en `data/metadata.tsv` va de
 ~15 % a 100 % en ambos transectos (medias similares entre
@@ -166,16 +162,16 @@ cada prompt.
 **Trigger:** "genera una figura", "haz un plot", "visualiza",
 "grafica"
 
-1. Usa paleta daltónica: `viridis` para gradientes continuos,
-   `Set2` para grupos discretos.
+1. Usa paleta daltónica: `magma` para gradientes continuos,
+`Set2` para grupos discretos.
 2. Exporta en PNG a 300 dpi y en PDF vectorial.
 3. Guarda ambos archivos en `outputs/` con nombre descriptivo en
-   inglés (ej. `fig1_shannon_vs_avgsoilrh.png`).
+inglés (ej. `fig1_shannon_vs_avgsoilrh.png`).
 4. Tamaño de figura por defecto: 8 × 6 pulgadas.
 5. Incluye siempre: título descriptivo, etiquetas de ejes con
-   unidades, leyenda si hay más de un grupo.
+unidades, leyenda si hay más de un grupo.
 6. Si es un scatter con regresión, incluye la banda de confianza
-   al 95 % y muestra R² y p-valor en el gráfico.
+al 95 % y muestra R² y p-valor en el gráfico.
 
 ### Cuando analices diversidad alfa
 
@@ -183,15 +179,15 @@ cada prompt.
 "diversidad por muestra", "índice de diversidad"
 
 1. Muestra primero un resumen estadístico de los índices (media,
-   mediana, rango) por transecto (Baquedano vs. Yungay).
+mediana, rango) por transecto (Baquedano vs. Yungay).
 2. Genera un boxplot por transecto antes de hacer cualquier
-   regresión.
+regresión.
 3. Usa `AvgSoilRH` como variable independiente principal salvo
-   que se indique otra.
+que se indique otra.
 4. Reporta siempre: coeficiente de correlación (r o Spearman ρ),
-   R², p-valor y n.
+R², p-valor y n.
 5. Si R² < 0.05, avisa antes de continuar — puede indicar un
-   problema con los datos o el análisis.
+problema con los datos o el análisis.
 
 ### Cuando analices composición (beta-diversidad)
 
@@ -199,17 +195,17 @@ cada prompt.
 "beta-diversidad", "composición de comunidades"
 
 1. Usa distancias Bray-Curtis salvo que se especifique otra
-   métrica.
+métrica.
 2. Para la ordenación, genera PCoA por defecto. Colorea por
-   gradiente continuo de `AvgSoilRH` con paleta `viridis`.
+gradiente continuo de `AvgSoilRH` con paleta `plasma`.
 3. Muestra el porcentaje de varianza explicado en los ejes de
-   la ordenación (PC1 y PC2).
+la ordenación (PC1 y PC2).
 4. Para modelar composición ~ variables ambientales, usa dbRDA
-   o PERMANOVA con 999 permutaciones.
+o PERMANOVA con 999 permutaciones.
 5. Reporta para cada variable: F, R² y p-valor; ordena la tabla
-   de mayor a menor R².
+de mayor a menor R².
 6. Avisa si n < 10 por grupo — las permutaciones pueden ser
-   insuficientes.
+insuficientes.
 
 ### Cuando revises resultados
 
@@ -217,15 +213,15 @@ cada prompt.
 "valida el análisis", "compara con la referencia"
 
 1. Evalúa si el resultado es biológicamente plausible para un
-   gradiente de aridez en suelo de desierto.
+gradiente de aridez en suelo de desierto.
 2. Compara los valores numéricos con `expected_outputs/` si el
-   archivo correspondiente existe.
+archivo correspondiente existe.
 3. Señala cualquier valor fuera de rango (R² negativo, p-valor > 1,
-   diversidades negativas, etc.).
+diversidades negativas, etc.).
 4. Si hay discrepancia con `expected_outputs/`, identifica la
-   causa probable (normalización, filtrado, índice diferente).
+causa probable (normalización, filtrado, índice diferente).
 5. Resume el resultado en máximo dos oraciones en lenguaje
-   biológico, no estadístico.
+biológico, no estadístico.
 
 ## ✏️ Notas personales
 
@@ -240,3 +236,4 @@ W., Josephson, K.L., Knight, R., Gilbert, J.A., Quade, J.,
 Caporaso, J.G., Maier, R.M. (2017). Significant Impacts of
 Increasing Aridity on the Arid Soil Microbiome. mSystems, 2(3):
 e00195-16.
+
