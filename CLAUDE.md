@@ -16,11 +16,10 @@ repositorio.
 
 <!-- Reemplaza este bloque con tu información antes del día 2 -->
 
-Soy ecóloga/o microbiana/o. No tengo experiencia previa en
-programación ni en Python. Tengo conocimientos básicos de
+Soy bioquímica, doctora en microbiología. Tengo experiencia previa, pero poca, en
+programación y en Python. Tengo conocimientos básicos de
 estadística (regresión, correlación) y de ecología de comunidades.
-Necesito que me expliques los resultados en lenguaje biológico
-además de estadístico.
+Necesito que me expliques los resultados en lenguaje biológico científico además de estadístico.
 
 ## Sobre el curso
 
@@ -67,6 +66,8 @@ dos veces sin consultar primero.
 
 6. **Verificación biológica**: al terminar cada análisis, pregunta
 si el resultado tiene sentido biológico antes de continuar.
+
+7. **Cada vez que crees o ejecutes un archivo, haz git add y git commit**
 
 ## Estructura del repositorio
 
@@ -173,7 +174,7 @@ cada prompt.
    inglés (ej. `fig1_shannon_vs_avgsoilrh.png`).
 4. Tamaño de figura por defecto: 8 × 6 pulgadas.
 5. Incluye siempre: título descriptivo, etiquetas de ejes con
-   unidades, leyenda si hay más de un grupo.
+   unidades, leyenda si hay más de un grupo, todo en inglés.
 6. Si es un scatter con regresión, incluye la banda de confianza
    al 95 % y muestra R² y p-valor en el gráfico.
 
