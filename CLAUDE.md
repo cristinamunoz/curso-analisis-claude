@@ -14,9 +14,9 @@ repositorio.
 
 ## ✏️ Quién soy
 
-<!-- Reemplaza este bloque con tu información antes del día 2 -->
 
-Soy ecóloga/o microbiana/o. No tengo experiencia previa en
+
+Soy ecóloga/o y estoy trabajando en lo microbiana/o pero no es mi formación, yo vengo de ecología de ecosistemas y de información social en grupos anumakes . No tengo experiencia previa en
 programación ni en Python. Tengo conocimientos básicos de
 estadística (regresión, correlación) y de ecología de comunidades.
 Necesito que me expliques los resultados en lenguaje biológico
@@ -67,6 +67,8 @@ dos veces sin consultar primero.
 
 6. **Verificación biológica**: al terminar cada análisis, pregunta
 si el resultado tiene sentido biológico antes de continuar.
+
+7. **Commit**: Cada vez que generes algo: git add outputs/ git commit -m "diversidad alfa" y Repite durante toda la sesión
 
 ## Estructura del repositorio
 
@@ -227,11 +229,13 @@ cada prompt.
 5. Resume el resultado en máximo dos oraciones en lenguaje
    biológico, no estadístico.
 
+
+###Commit
+
+
 ## ✏️ Notas personales
 
-<!-- Espacio libre para contexto adicional que quieras agregar
-     durante el curso: observaciones del dataset, decisiones de
-     análisis, preguntas para el instructor, etc. -->
+<!--agregar pequeño resumen de interpretación de resultado al terminar un análisis de datos, sugerir posible test siguiente de ser necesario y que figura aportaría al análisis, pero siendo parsimonioso, es decir si no aporta no sugerir, no generar basura-->
 
 ## Paper base
 
