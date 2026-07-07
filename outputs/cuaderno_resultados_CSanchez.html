@@ -138,6 +138,7 @@
       <li><a href="#intro">1. Introduccion</a></li>
       <li><a href="#alfa">2. Diversidad alfa</a></li>
       <li><a href="#beta">3. Composicion</a></li>
+      <li><a href="#multivariado">3B. Multivariado</a></li>
       <li><a href="#comparacion">4. Comparacion</a></li>
       <li><a href="#resumen">Resumen</a></li>
       <li><a href="#anexo">Anexo metodologico</a></li>
@@ -349,6 +350,253 @@ PERMANOVA:  F = (SC_modelo/1) / (SC_residual/(n-2))
       temperatura y elevacion) &mdash; justo lo opuesto de lo que
       planteaba H3. Ver seccion 4 para el detalle de por que se
       rechaza la comparacion relativa de la hipotesis.
+    </div>
+  </section>
+
+  <section class="block" id="multivariado">
+    <p class="kicker">Seccion 3B &middot; profundizacion</p>
+    <h2>Yendo mas alla: analisis multivariado</h2>
+    <p class="lede-q">Todo lo anterior prueba humedad, temperatura
+      y elevacion <b>una variable a la vez</b>. El paper de Neilson
+      et al. muestra (con su analisis BEST, Tabla 1) que las
+      <b>combinaciones</b> de variables explican mas varianza que
+      cualquiera por separado. Repetimos esa idea aqui con tres
+      metodos distintos, sobre las mismas 51 muestras.</p>
+
+    <h3 style="font-size:18px; margin: 8px 0 0;">Paso 1 &middot; PERMANOVA multivariado</h3>
+    <div class="grid-2">
+      <div>
+        <p>En vez de un modelo por variable, se ponen las 3 juntas
+          en un solo modelo. Esto da dos numeros nuevos: el
+          <b>R&sup2; combinado</b> (cuanto explican las 3 juntas) y
+          el <b>aporte unico</b> de cada variable (cuanto explica
+          esa variable que ninguna otra puede explicar, controlando
+          por las demas).</p>
+        <div class="postit">
+<span class="postit-title">Formula</span>Modelo completo: X = [1, humedad, temperatura, elevacion]
+R&sup2;_combinado = SC_modelo(X) / SC_total
+
+Aporte unico de la variable j:
+R&sup2;_unico(j) = R&sup2;_combinado - R&sup2;(X sin j)
+        </div>
+      </div>
+      <div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr><th>Modelo</th><th>R&sup2;</th><th>F</th>
+                <th>p-valor</th></tr>
+            </thead>
+            <tbody>
+              <tr class="row-highlight">
+                <td>Combinado (las 3 juntas)</td>
+                <td class="num">0.1287</td><td class="num">2.314</td>
+                <td class="num">0.001</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tbl-wrap" style="margin-top:14px">
+          <table>
+            <thead>
+              <tr><th>Variable</th><th>R&sup2; unico</th>
+                <th>p-valor</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Temperatura</td><td class="num">0.0440</td>
+                <td class="num">0.001</td></tr>
+              <tr><td>Humedad</td><td class="num">0.0342</td>
+                <td class="num">0.001</td></tr>
+              <tr><td>Elevacion</td><td class="num">0.0331</td>
+                <td class="num">0.001</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="callout ok">
+      <b>El R&sup2; combinado (12.9%) es mas del doble que
+      cualquier variable sola</b> (5&ndash;6% cada una) &mdash;
+      esto SI replica el hallazgo central del paper: las variables
+      ambientales explican mas juntas que por separado. Pero
+      0.034+0.044+0.033=0.111 es menos que 0.129: la diferencia
+      (~1.7%) es varianza que dos o tres variables explican
+      "a la vez" y no se le puede atribuir a una sola &mdash; es
+      la huella de que estan correlacionadas entre si (ver Paso 3).
+    </div>
+
+    <h3 style="font-size:18px; margin: 32px 0 0;">Paso 2 &middot; Test de Mantel</h3>
+    <div class="grid-2">
+      <div>
+        <p>El test de Mantel es mas directo que PERMANOVA:
+          pregunta si dos muestras que estan mas lejos
+          <b>ambientalmente</b> tambien estan mas lejos en su
+          <b>composicion microbiana</b>. Correlaciona la matriz de
+          distancias Bray-Curtis directamente contra una matriz de
+          distancias ambientales (euclidianas). Es el mismo
+          estadistico (Mantel's r) que usa el paper de Neilson.</p>
+        <div class="postit">
+<span class="postit-title">Formula</span>r_Mantel = correlacion(distancias_BrayCurtis,
+                       distancias_ambientales)
+p-valor = permutando el orden de las muestras
+          en la matriz ambiental (999 veces)
+        </div>
+      </div>
+      <div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr><th>Variable</th><th>Mantel r</th>
+                <th>p-valor</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Elevacion</td><td class="num">0.408</td>
+                <td class="num">0.001</td></tr>
+              <tr><td>Temperatura</td><td class="num">0.369</td>
+                <td class="num">0.001</td></tr>
+              <tr><td>Humedad</td><td class="num">0.328</td>
+                <td class="num">0.001</td></tr>
+              <tr class="row-highlight">
+                <td>Combinada (las 3 estandarizadas)</td>
+                <td class="num">0.429</td>
+                <td class="num">0.001</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="callout">
+      <b>Tercera confirmacion del mismo patron:</b> otra vez
+      elevacion y temperatura superan a humedad como predictores
+      individuales de la composicion. La version combinada
+      (r=0.429) vuelve a ser la mas fuerte de todas &mdash; el
+      mismo mensaje que el PERMANOVA multivariado, con un metodo
+      totalmente distinto.
+    </div>
+
+    <h3 style="font-size:18px; margin: 32px 0 0;">Paso 3 &middot; GLM: Shannon ~ humedad + temperatura + elevacion</h3>
+    <div class="grid-2">
+      <div>
+        <p>Un <b>GLM</b> (modelo lineal generalizado) es la version
+          general de la regresion lineal: permite elegir una
+          distribucion para la variable de respuesta (Gaussiana,
+          Poisson, etc.) y una funcion de enlace. Como Shannon es
+          continuo, usamos familia <b>Gaussiana</b> con enlace
+          identidad &mdash; en la practica, equivalente a una
+          regresion lineal multiple con las 3 variables a la vez.
+          A diferencia de H1 (que correlacionaba Shannon con
+          humedad sola), aqui vemos si humedad "sobrevive" cuando
+          se controla por temperatura y elevacion al mismo tiempo.</p>
+        <div class="postit">
+<span class="postit-title">Formula</span>Shannon = b0 + b1*humedad + b2*temperatura
+                + b3*elevacion + error
+Familia: Gaussiana, enlace: identidad
+        </div>
+      </div>
+      <div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr><th>Variable</th><th>Coeficiente</th>
+                <th>p-valor</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Intercepto</td><td class="num">2.794</td>
+                <td class="num">0.026</td></tr>
+              <tr><td>Humedad</td><td class="num">0.0094</td>
+                <td class="num">0.112</td></tr>
+              <tr><td>Temperatura</td><td class="num">-0.0192</td>
+                <td class="num">0.612</td></tr>
+              <tr><td>Elevacion</td><td class="num">-0.00007</td>
+                <td class="num">0.817</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-top:10px; font-size:14px">
+          R&sup2; del modelo completo: <b>0.219</b> (vs. 0.212 de
+          humedad sola en H1 &mdash; casi no mejora).</p>
+      </div>
+    </div>
+    <div class="callout">
+      <b>Ninguna variable es significativa por separado</b>
+      (p&gt;0.1 las tres) a pesar de que humedad sola SI lo era en
+      H1 (p=0.0007). La razon: las tres variables estan
+      fuertemente correlacionadas entre si.
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Par de variables (n=72)</th>
+            <th>Spearman &rho;</th><th>p-valor</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Humedad vs. temperatura</td>
+            <td class="num">-0.760</td>
+            <td class="num">&lt;0.0001</td></tr>
+          <tr><td>Humedad vs. elevacion</td>
+            <td class="num">0.867</td>
+            <td class="num">&lt;0.0001</td></tr>
+          <tr><td>Temperatura vs. elevacion</td>
+            <td class="num">-0.902</td>
+            <td class="num">&lt;0.0001</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout ok">
+      <b>Post-it: que es la colinealidad?</b> Cuando dos o mas
+      variables predictoras estan muy correlacionadas entre si
+      (aqui |&rho;| entre 0.76 y 0.90 &mdash; tiene sentido: a
+      mayor elevacion, menor temperatura y mayor humedad en estos
+      transectos), el modelo "no sabe" a cual atribuirle el
+      efecto compartido, y reparte la incertidumbre entre todas
+      &mdash; bajando la significancia individual de cada una,
+      aunque el efecto conjunto siga siendo real y significativo
+      (R&sup2;=0.219, muy por encima del umbral de aviso 0.05).
+      Esto NO significa que humedad "no importe": significa que,
+      en este dataset, humedad/temperatura/elevacion viajan tan
+      juntas que es dificil separar el efecto de cada una.
+    </div>
+
+    <h3 style="font-size:18px; margin: 32px 0 0;">Interpretacion comparativa con el paper</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Comparacion</th><th>Neilson et al. (2017)</th>
+            <th>Este cuaderno</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Metrica de beta-diversidad</td>
+            <td>UniFrac (filogenetica)</td>
+            <td>Bray-Curtis (no filogenetica)</td></tr>
+          <tr><td>Mejor variable individual (composicion)</td>
+            <td>HighSoilRH / AvgSoilRH (Mantel r=0.625)</td>
+            <td>Elevacion (Mantel r=0.408)</td></tr>
+          <tr><td>Combinacion &gt; variable individual?</td>
+            <td>Si (BEST: rs=0.776 vs. 0.663 solo)</td>
+            <td>Si (PERMANOVA: R&sup2;=0.129 vs. 0.058 sola)</td></tr>
+          <tr><td>Shannon vs. AvgSoilRH</td>
+            <td>&rho;=0.64, p&lt;0.0001</td>
+            <td>&rho;=0.469, p=0.00052</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <b>Que se confirma y que diverge, en una frase:</b> el
+      patron general del paper &mdash; la aridez afecta diversidad
+      y composicion, y combinar variables explica mas que
+      cualquiera sola &mdash; <b>se confirma</b> con tres metodos
+      independientes. Lo que <b>diverge</b> es el protagonismo
+      especifico de la humedad: en el paper es la variable mas
+      fuerte con holgura; en este cuaderno queda empatada o por
+      debajo de temperatura/elevacion en los tres metodos
+      (PERMANOVA univariado, PERMANOVA multivariado y Mantel).
+      Causas probables: (1) el paper usa UniFrac
+      (filogenetico) y nosotros Bray-Curtis (composicional puro);
+      (2) el paper rarefacta a profundidad fija antes de calcular
+      distancias, aqui no; (3) el paper prueba tambien HighSoilRH
+      y EC &mdash;variables que no probamos aqui y que en su
+      analisis superan a AvgSoilRH; (4) tamanos de muestra y
+      filtros de calidad distintos (40 muestras muy filtradas
+      vs. 51-54 aqui).
     </div>
   </section>
 
