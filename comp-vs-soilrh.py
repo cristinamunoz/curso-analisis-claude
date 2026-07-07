@@ -3,11 +3,13 @@
 Reproduce la parte de composicion (beta-diversidad) del analisis
 de Neilson et al. (2017): calcula distancias Bray-Curtis entre
 muestras a partir de las abundancias de OTU, hace una ordenacion
-PCoA y verifica si los transectos mas aridos (Yungay) se separan
-de los menos aridos (Baquedano) a lo largo del primer eje (H2).
+PCoA para visualizar, y prueba con PERMANOVA (999 permutaciones)
+si los transectos mas aridos (Yungay) y menos aridos (Baquedano)
+tienen comunidades composicionalmente distintas (H2).
 
 Genera:
 - outputs/fig2_pcoa_braycurtis.png / .pdf
+- outputs/h2_permanova_transecto.tsv
 """
 
 import matplotlib.pyplot as plt
@@ -20,6 +22,8 @@ RUTA_METADATA = "data/metadata.tsv"
 CARPETA_SALIDA = "outputs"
 COLUMNA_HUMEDAD = "average-soil-relative-humidity"
 COLUMNA_TRANSECTO = "transect-name"
+N_PERMUTACIONES = 999
+SEMILLA_ALEATORIA = 0
 
 
 def cargar_datos():
@@ -41,16 +45,16 @@ def cargar_datos():
     return abundancias, metadata
 
 
-def calcular_pcoa(abundancias):
-    """Hace una ordenacion PCoA clasica sobre distancias
-    Bray-Curtis (metodo de Gower: doble centrado de la matriz de
+def calcular_distancias(abundancias):
+    matriz_muestras = abundancias.T.to_numpy()
+    return squareform(pdist(matriz_muestras, metric="braycurtis"))
+
+
+def calcular_pcoa(distancias):
+    """Hace una ordenacion PCoA clasica sobre una matriz de
+    distancias (metodo de Gower: doble centrado de la matriz de
     distancias al cuadrado y descomposicion en autovalores).
     """
-    matriz_muestras = abundancias.T.to_numpy()
-    distancias = squareform(
-        pdist(matriz_muestras, metric="braycurtis")
-    )
-
     n = distancias.shape[0]
     identidad = np.eye(n)
     unos = np.ones((n, n)) / n
@@ -78,13 +82,6 @@ def graficar_pcoa(pc1, pc2, var_pc1, var_pc2, metadata):
 
     fig, ax = plt.subplots(figsize=(8, 6))
 
-    if sin_dato.any():
-        ax.scatter(
-            pc1[sin_dato], pc2[sin_dato], c="lightgray",
-            edgecolor="black", linewidth=0.5,
-            label="Sin dato de humedad",
-        )
-
     dispersion = ax.scatter(
         pc1[~sin_dato], pc2[~sin_dato], c=humedad[~sin_dato],
         cmap=plt.get_cmap("viridis"), edgecolor="black",
@@ -99,8 +96,6 @@ def graficar_pcoa(pc1, pc2, var_pc1, var_pc2, metadata):
         "PCoA (Bray-Curtis) de composicion microbiana\n"
         "Desierto de Atacama (Neilson et al. 2017)"
     )
-    if sin_dato.any():
-        ax.legend(loc="best")
     fig.tight_layout()
 
     fig.savefig(
@@ -110,14 +105,91 @@ def graficar_pcoa(pc1, pc2, var_pc1, var_pc2, metadata):
     plt.close(fig)
 
 
-def revisar_separacion_transectos(pc1, metadata):
-    metadata = metadata.copy()
-    metadata["pc1"] = pc1
-    resumen = metadata.groupby(COLUMNA_TRANSECTO)["pc1"].agg(
-        n="count", media="mean", mediana="median",
+def _suma_cuadrados_intra(distancias_cuad, etiquetas):
+    """Suma, para cada grupo, la suma de distancias (al cuadrado)
+    entre sus propias muestras dividida por su tamano. Es la
+    pieza que compara PERMANOVA contra la suma de cuadrados total
+    para saber cuanta variacion queda "dentro" de cada grupo.
+    """
+    suma = 0.0
+    for grupo in np.unique(etiquetas):
+        indices = np.where(etiquetas == grupo)[0]
+        n_grupo = len(indices)
+        submatriz = distancias_cuad[np.ix_(indices, indices)]
+        pares = submatriz[np.triu_indices(n_grupo, k=1)]
+        suma += pares.sum() / n_grupo
+    return suma
+
+
+def permanova(distancias, etiquetas):
+    """PERMANOVA de una via (Anderson, 2001): prueba si las
+    distancias Bray-Curtis entre muestras del mismo grupo
+    (transecto) son en promedio mas chicas que entre muestras de
+    grupos distintos, usando permutaciones para el p-valor en vez
+    de asumir una distribucion teorica.
+    """
+    etiquetas = np.asarray(etiquetas)
+    n = distancias.shape[0]
+    k = len(np.unique(etiquetas))
+    distancias_cuad = distancias ** 2
+
+    pares_todos = distancias_cuad[np.triu_indices(n, k=1)]
+    ss_total = pares_todos.sum() / n
+
+    ss_intra_obs = _suma_cuadrados_intra(distancias_cuad, etiquetas)
+    ss_entre_obs = ss_total - ss_intra_obs
+    f_obs = (ss_entre_obs / (k - 1)) / (ss_intra_obs / (n - k))
+    r2 = ss_entre_obs / ss_total
+
+    generador = np.random.default_rng(SEMILLA_ALEATORIA)
+    conteo_iguales_o_mayores = 0
+    for _ in range(N_PERMUTACIONES):
+        permutadas = generador.permutation(etiquetas)
+        ss_intra_p = _suma_cuadrados_intra(
+            distancias_cuad, permutadas
+        )
+        ss_entre_p = ss_total - ss_intra_p
+        f_p = (ss_entre_p / (k - 1)) / (ss_intra_p / (n - k))
+        if f_p >= f_obs:
+            conteo_iguales_o_mayores += 1
+
+    p_valor = (conteo_iguales_o_mayores + 1) / (N_PERMUTACIONES + 1)
+    return f_obs, r2, p_valor, n
+
+
+def revisar_separacion_transectos(distancias, metadata):
+    etiquetas = metadata[COLUMNA_TRANSECTO].to_numpy()
+    tamanos = metadata.groupby(COLUMNA_TRANSECTO).size()
+    if (tamanos < 10).any():
+        print(
+            "\nAVISO: hay un transecto con menos de 10 muestras; "
+            "las permutaciones del PERMANOVA pueden ser poco "
+            "confiables."
+        )
+
+    f_obs, r2, p_valor, n = permanova(distancias, etiquetas)
+
+    print("\nPERMANOVA por transecto (Bray-Curtis, 999 "
+          "permutaciones):")
+    print(f"  F = {f_obs:.3f}")
+    print(f"  R2 = {r2:.4f}")
+    print(f"  p-valor = {p_valor:.4f}")
+    print(f"  n = {n}")
+
+    tabla = pd.DataFrame([{
+        "variable": "transecto",
+        "columna_original": COLUMNA_TRANSECTO,
+        "F": f_obs,
+        "R2": r2,
+        "p_valor": p_valor,
+        "n_permutaciones": N_PERMUTACIONES,
+        "n": n,
+    }])
+    tabla.to_csv(
+        f"{CARPETA_SALIDA}/h2_permanova_transecto.tsv",
+        sep="\t", index=False,
     )
-    print("\nPC1 por transecto (chequeo de H2):")
-    print(resumen.round(3))
+    return r2, p_valor
 
 
 def main():
@@ -125,16 +197,24 @@ def main():
     print(f"Muestras cruzadas (abundancia + metadata): "
           f"{len(metadata)}")
 
-    pc1, pc2, var_pc1, var_pc2 = calcular_pcoa(abundancias)
+    distancias = calcular_distancias(abundancias)
+    pc1, pc2, var_pc1, var_pc2 = calcular_pcoa(distancias)
 
-    print("\nVarianza explicada:")
+    print("\nVarianza explicada (ejes de la ordenacion):")
     print(f"  PC1 = {var_pc1:.2f}%")
     print(f"  PC2 = {var_pc2:.2f}%")
 
-    revisar_separacion_transectos(pc1, metadata)
+    r2, p_valor = revisar_separacion_transectos(distancias, metadata)
     graficar_pcoa(pc1, pc2, var_pc1, var_pc2, metadata)
 
-    print(f"\nFigura guardada en '{CARPETA_SALIDA}/'.")
+    if r2 < 0.05:
+        print(
+            "\nAVISO: R2 < 0.05. La composicion casi no difiere "
+            "entre transectos; revisa si tiene sentido biologico "
+            "antes de seguir."
+        )
+
+    print(f"\nFigura y tabla guardadas en '{CARPETA_SALIDA}/'.")
 
 
 if __name__ == "__main__":
