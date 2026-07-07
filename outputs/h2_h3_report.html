@@ -280,6 +280,16 @@
 
   .callout b { color: var(--teal); }
 
+  .callout-caveat {
+    background: var(--clay-soft);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1.1rem 1.25rem;
+    font-size: 0.95rem;
+  }
+
+  .callout-caveat b { color: var(--clay); }
+
   .match-pill {
     display: inline-flex;
     align-items: center;
@@ -357,6 +367,23 @@
       available sample subset, since not every sample has every
       variable recorded.
     </p>
+
+    <div class="callout-caveat">
+      <b>Why Bray-Curtis instead of UniFrac:</b> the original paper
+      used UniFrac, a phylogeny-aware distance that needs a tree
+      relating every OTU. This course dataset ships only
+      <code>abundancias.tsv</code> and <code>metadata.tsv</code> —
+      no representative sequences or tree. We checked both public
+      sources cited in the paper: Qiita (study 10360) gates its
+      processed artifacts — BIOM tables and trees — behind a login,
+      and ENA (ERP019482) holds only raw, undemultiplexed
+      sequencing reads, which would require rerunning the entire
+      OTU-picking and tree-building pipeline (QIIME, Greengenes,
+      PyNAST, FastTree) from scratch. That's a multi-hour
+      bioinformatics undertaking outside the scope of this course,
+      so Bray-Curtis — which needs only the abundance table — is
+      the correct default here, not a shortcut.
+    </div>
   </section>
 
   <section>
