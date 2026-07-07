@@ -78,6 +78,27 @@ def resumen_por_transecto(diversidad):
     return resumen
 
 
+def exportar_tabla_para_gam(diversidad):
+    """Exporta diversidad + variables ambientales para el GAM en R.
+
+    Renombra columnas con guiones (invalidas en formulas de R)
+    a nombres con guion bajo.
+    """
+    columnas = {
+        "average-soil-relative-humidity": "avg_soil_rh",
+        "average-soil-temperature": "temperature",
+        "elevation": "elevation",
+        "transect-name": "transect",
+    }
+    tabla = diversidad[
+        ["richness", "shannon", "simpson"] + list(columnas)
+    ].rename(columns=columnas)
+    tabla = tabla.dropna()
+    ruta = f"{CARPETA_SALIDA}/diversidad_alfa_por_muestra.tsv"
+    tabla.to_csv(ruta, sep="\t", index=False)
+    return ruta
+
+
 def resumen_shannon_por_transecto(diversidad):
     """Media, mediana, rango y n de Shannon por transecto (H1)."""
     resumen = diversidad.groupby("transect-name")["shannon"].agg(
@@ -481,6 +502,9 @@ def main():
         index=False,
     )
     print("\nTablas H1 guardadas en outputs/")
+
+    ruta_gam = exportar_tabla_para_gam(diversidad)
+    print(f"Tabla para GAM (R) guardada en {ruta_gam}")
 
     if (metadata_f["transect-name"].value_counts() < 10).any():
         print(
