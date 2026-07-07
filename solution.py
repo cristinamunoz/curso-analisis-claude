@@ -78,6 +78,32 @@ def resumen_por_transecto(diversidad):
     return resumen
 
 
+def resumen_shannon_por_transecto(diversidad):
+    """Media, mediana, rango y n de Shannon por transecto (H1)."""
+    resumen = diversidad.groupby("transect-name")["shannon"].agg(
+        mean="mean", median="median", min="min", max="max",
+        count="count",
+    )
+    return resumen.reset_index()
+
+
+def correlacion_shannon_vs_humedad(diversidad):
+    """Correlacion de Spearman entre Shannon y AvgSoilRH (H1)."""
+    datos = diversidad.dropna(
+        subset=["average-soil-relative-humidity", "shannon"]
+    )
+    rho, p_valor = stats.spearmanr(
+        datos["average-soil-relative-humidity"], datos["shannon"]
+    )
+    return pd.DataFrame([{
+        "variable_x": "average-soil-relative-humidity",
+        "variable_y": "shannon",
+        "spearman_rho": rho,
+        "p_valor": p_valor,
+        "n": len(datos),
+    }])
+
+
 def asteriscos_por_p_valor(p_valor):
     """Convierte un p-valor en su notacion de asteriscos habitual."""
     if p_valor < 0.001:
@@ -381,6 +407,20 @@ def main():
     graficar_boxplot_por_transecto(diversidad)
     graficar_scatter_vs_humedad(diversidad)
     print(f"\nFiguras guardadas en {CARPETA_SALIDA}/")
+
+    tabla_h1_resumen = resumen_shannon_por_transecto(diversidad)
+    tabla_h1_resumen.to_csv(
+        f"{CARPETA_SALIDA}/h1_resumen_shannon_por_transecto.tsv",
+        sep="\t",
+        index=False,
+    )
+    tabla_h1_correlacion = correlacion_shannon_vs_humedad(diversidad)
+    tabla_h1_correlacion.to_csv(
+        f"{CARPETA_SALIDA}/h1_correlacion_shannon_vs_humedad.tsv",
+        sep="\t",
+        index=False,
+    )
+    print("\nTablas H1 guardadas en outputs/")
 
     if (metadata_f["transect-name"].value_counts() < 10).any():
         print(
