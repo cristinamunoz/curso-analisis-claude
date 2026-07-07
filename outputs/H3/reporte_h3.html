@@ -5,87 +5,113 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Reporte H3 — Variable ambiental con mayor R²</title>
 <style>
-  :root {
-    --azul: #0072B2; --naranja: #D55E00; --verde: #009E73;
-    --bg: #f4f6f9; --card-bg: #ffffff; --texto: #1c2530;
-    --texto-suave: #5a6472; --borde: #e2e6ec;
-  }
-  * { box-sizing: border-box; }
-  body {
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg); color: var(--texto);
-    max-width: 960px; margin: 0 auto; padding: 0 20px 60px;
-    line-height: 1.6;
-  }
-  header {
-    background: linear-gradient(135deg, var(--verde), var(--azul));
-    color: white; margin: 0 -20px 32px; padding: 36px 40px;
-    border-radius: 0 0 18px 18px;
-  }
-  header h1 { margin: 0 0 8px; font-size: 1.7em; }
-  header p { margin: 0; opacity: 0.95; font-size: 1.05em; }
-  h2 {
-    font-size: 1.25em; color: var(--azul); margin-top: 2.2em;
-    display: flex; align-items: center; gap: 8px;
-  }
-  h2::before { content: ""; width: 6px; height: 22px;
-                background: var(--azul); border-radius: 3px; }
-  .card {
-    background: var(--card-bg); border: 1px solid var(--borde);
-    border-radius: 12px; padding: 20px 24px; margin: 16px 0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-  }
-  .pregunta-box {
-    background: #eef4fb; border-left: 5px solid var(--azul);
-    border-radius: 8px; padding: 16px 20px; font-size: 1.05em;
-  }
-  .glosario-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 14px;
-  }
-  .term-card {
-    background: var(--card-bg); border: 1px solid var(--borde);
-    border-left: 4px solid var(--naranja); border-radius: 8px;
-    padding: 14px 18px;
-  }
-  .term-card h3 { margin: 0 0 6px; font-size: 1em;
-                   color: var(--naranja); }
-  .term-card p { margin: 0; font-size: 0.92em;
-                  color: var(--texto-suave); }
-  table {
-    border-collapse: collapse; width: 100%; margin: 0.5em 0;
-    font-size: 0.95em;
-  }
-  th, td { border: 1px solid var(--borde); padding: 8px 14px;
-            text-align: right; }
-  th { background: #eef2f7; color: var(--texto); }
-  td:first-child, th:first-child { text-align: left; }
-  tr:nth-child(even) td { background: #fafbfc; }
-  img {
-    max-width: 100%; border-radius: 10px;
-    border: 1px solid var(--borde); margin: 10px 0;
-    display: block;
-  }
-  .caption { font-size: 0.88em; color: var(--texto-suave);
-              max-width: 720px; }
-  .badge {
-    display: inline-block; padding: 3px 12px; border-radius: 999px;
-    font-size: 0.85em; font-weight: 600;
-  }
-  .badge-ok { background: #d7f2ea; color: #036e51; }
-  .badge-warn { background: #fde3d0; color: #9a4400; }
-  .conclusion {
-    background: #f7f9fb; border-left: 5px solid var(--azul);
-    border-radius: 8px; padding: 18px 22px; margin: 1.5em 0;
-  }
-  .conclusion h2::before { background: var(--verde); }
-  footer {
-    margin-top: 3em; padding-top: 1em;
-    border-top: 1px solid var(--borde);
-    font-size: 0.85em; color: var(--texto-suave);
-  }
-</style>
+    :root {
+      --azul: #0072B2; --naranja: #D55E00; --verde: #009E73;
+      --amarillo: #E69F00;
+      --bg: #f4f6f9; --card-bg: #ffffff; --texto: #1c2530;
+      --texto-suave: #495365; --borde: #e2e6ec;
+    }
+    * { box-sizing: border-box; }
+    html { font-size: 17px; }
+    body {
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg); color: var(--texto);
+      max-width: 980px; margin: 0 auto; padding: 0 20px 70px;
+      line-height: 1.65; font-size: 1rem;
+    }
+    header {
+      background: linear-gradient(135deg, #009E73, #0072B2);
+      color: white; margin: 0 -20px 28px; padding: 42px 40px 34px;
+      border-radius: 0 0 20px 20px;
+    }
+    header h1 { margin: 0 0 10px; font-size: 2.1rem; line-height: 1.25; }
+    header p { margin: 0; opacity: 0.95; font-size: 1.15rem; }
+    nav.tabs { display: flex; gap: 10px; flex-wrap: wrap;
+                margin: 0 0 28px; }
+    nav.tabs a {
+      padding: 10px 20px; border-radius: 999px; text-decoration: none;
+      font-weight: 600; font-size: 0.98rem; border: 1px solid var(--borde);
+      color: var(--texto); background: white;
+    }
+    nav.tabs a.activo {
+      background: var(--texto); color: white; border-color: var(--texto);
+    }
+    h2 {
+      font-size: 1.55rem; color: var(--azul); margin-top: 2.4em;
+      display: flex; align-items: center; gap: 10px;
+    }
+    h2::before { content: ""; width: 7px; height: 27px;
+                  background: var(--azul); border-radius: 4px; }
+    .card {
+      background: var(--card-bg); border: 1px solid var(--borde);
+      border-radius: 14px; padding: 24px 28px; margin: 18px 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05); font-size: 1rem;
+    }
+    .pregunta-box {
+      background: #eef4fb; border-left: 5px solid var(--azul);
+      border-radius: 10px; padding: 20px 24px; font-size: 1.12rem;
+    }
+    .ref-box {
+      background: #fff8e9; border-left: 5px solid var(--amarillo);
+      border-radius: 10px; padding: 16px 22px; font-size: 0.98rem;
+      margin: 16px 0; color: #6b4c00;
+    }
+    .ref-box a { color: #6b4c00; font-weight: 600; }
+    .glosario-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 16px;
+    }
+    .term-card {
+      background: var(--card-bg); border: 1px solid var(--borde);
+      border-left: 4px solid var(--naranja); border-radius: 10px;
+      padding: 18px 22px;
+    }
+    .term-card h3 { margin: 0 0 8px; font-size: 1.08rem;
+                     color: var(--naranja); }
+    .term-card p { margin: 0; font-size: 1rem;
+                    color: var(--texto-suave); line-height: 1.55; }
+    table { border-collapse: collapse; width: 100%; margin: 0.7em 0;
+             font-size: 1rem; }
+    th, td { border: 1px solid var(--borde); padding: 10px 16px;
+              text-align: right; }
+    th { background: #eef2f7; color: var(--texto); font-size: 0.97rem; }
+    td:first-child, th:first-child { text-align: left; }
+    tr:nth-child(even) td { background: #fafbfc; }
+    img { max-width: 100%; border-radius: 12px;
+           border: 1px solid var(--borde); margin: 14px 0;
+           display: block; }
+    .caption { font-size: 0.97rem; color: var(--texto-suave);
+                max-width: 760px; }
+    .contraste-grid { display: grid; grid-template-columns: 1fr 1fr;
+                        gap: 16px; }
+    .contraste-col { border-radius: 12px; padding: 20px 24px; }
+    .col-esperado { background: #eef4fb; border: 1px solid #c9ddf0; }
+    .col-encontrado { background: #fdf1e8; border: 1px solid #f3d3b8; }
+    .contraste-col h3 { margin-top: 0; font-size: 1.08rem; }
+    .col-esperado h3 { color: var(--azul); }
+    .col-encontrado h3 { color: var(--naranja); }
+    .badge { display: inline-block; padding: 4px 14px;
+              border-radius: 999px; font-size: 0.92rem;
+              font-weight: 600; }
+    .badge-ok { background: #d7f2ea; color: #036e51; }
+    .badge-warn { background: #fde3d0; color: #9a4400; }
+    .conclusion { background: #f7f9fb; border-left: 5px solid var(--azul);
+                   border-radius: 10px; padding: 24px 28px;
+                   margin: 1.8em 0; }
+    .conclusion h2::before { background: var(--verde); }
+    .dificultades { background: #fdf2f2; border-left: 5px solid #c0392b;
+                      border-radius: 10px; padding: 22px 26px;
+                      margin: 1.6em 0; }
+    .dificultades h2 { color: #c0392b; }
+    .dificultades h2::before { background: #c0392b; }
+    footer { margin-top: 3em; padding-top: 1.2em;
+              border-top: 1px solid var(--borde); font-size: 0.92rem;
+              color: var(--texto-suave); }
+    @media (max-width: 640px) {
+      .contraste-grid { grid-template-columns: 1fr; }
+    }
+    </style>
 </head>
 <body>
 
@@ -94,6 +120,8 @@
   <p>Comparación de humedad, temperatura y elevación — desierto
   de Atacama (Neilson et al. 2017)</p>
 </header>
+
+<nav class="tabs"><a class="" href="../H1/reporte_h1.html">H1 · Diversidad alfa</a><a class="" href="../H2/reporte_h2.html">H2 · Composición (PCoA)</a><a class="activo" href="../H3/reporte_h3.html">H3 · Variable dominante</a></nav>
 
 <div class="pregunta-box">
   <b>Pregunta biológica:</b> ¿La humedad relativa del suelo
@@ -105,32 +133,25 @@
 <h2>Glosario: qué significa cada término</h2>
 <div class="glosario-grid">
   <div class="term-card">
-    <h3>R² (varianza explicada)</h3>
-    <p>Porcentaje de toda la variación en composición microbiana
-    (distancias Bray-Curtis) que se explica por una sola variable
-    ambiental. Más alto = esa variable es más determinante para
-    quién vive en el suelo.</p>
-  </div>
-  <div class="term-card">
     <h3>F (estadístico)</h3>
     <p>Compara cuánta varianza explica el modelo frente a la
     varianza que queda sin explicar. Valores más altos indican
     una relación más fuerte entre la variable y la composición.</p>
   </div>
   <div class="term-card">
-    <h3>p-valor</h3>
-    <p>Probabilidad de observar un R² así de alto si la variable
-    no tuviera ninguna relación real con la composición (puro
-    azar). p = 0.001 es el mínimo posible con 999 permutaciones:
-    ninguna de las 999 reordenadas al azar superó el resultado
-    real.</p>
+    <h3>Modelo univariado vs. marginal vs. conjunto</h3>
+    <p><b>Univariado:</b> se prueba una variable sola.
+    <b>Conjunto:</b> se prueban las 3 variables juntas en un solo
+    modelo. <b>Marginal:</b> el aporte único de una variable
+    dentro del modelo conjunto, descontando lo que ya explican
+    las otras dos.</p>
   </div>
-  <div class="term-card">
-    <h3>PERMANOVA univariado</h3>
-    <p>La misma prueba usada en H2, aplicada aquí una vez por
-    cada variable ambiental por separado, para poder comparar
-    cuál explica más.</p>
-  </div>
+</div>
+<div class="ref-box">
+  <b>Nota:</b> R², p-valor y PERMANOVA ya se explicaron en
+  <a href="../H1/reporte_h1.html">H1</a> y
+  <a href="../H2/reporte_h2.html">H2</a> — aquí se reutilizan sin
+  volver a definirlos.
 </div>
 
 <h2>Variable con mayor R²</h2>
@@ -267,24 +288,9 @@
 <div class="pregunta-box">
   <b>Pregunta:</b> Cada variable ambiental explica poco por sí
   sola (~5%). ¿Es porque comparten información entre sí (están
-  correlacionadas) y al juntarlas explican más en total?
-</div>
-
-<div class="glosario-grid">
-  <div class="term-card">
-    <h3>Modelo conjunto (R² total)</h3>
-    <p>Se meten las 3 variables ambientales al mismo tiempo en un
-    solo modelo. El R² total indica cuánta varianza composicional
-    explican las tres juntas.</p>
-  </div>
-  <div class="term-card">
-    <h3>R² marginal</h3>
-    <p>La contribución única de una variable, después de
-    descontar lo que ya explican las otras dos. Si el R²
-    marginal es mucho menor que el R² univariado (solo), significa
-    que esa variable comparte información con las demás (están
-    correlacionadas entre sí).</p>
-  </div>
+  correlacionadas) y al juntarlas explican más en total? (Ver
+  definiciones de "conjunto" y "marginal" en el glosario de
+  arriba.)
 </div>
 
 <div class="card">
@@ -391,6 +397,44 @@ significativo (p = 0.001 en las tres), pero de magnitud modesta
 en este subconjunto de datos — no tan dominante como sugiere el
 texto original de H3, y sin una diferencia clara entre humedad,
 temperatura y elevación, ni siquiera al modelarlas en conjunto.</p>
+
+<p><b>Contraste con H1 y H2:</b> las tres hipótesis juntas cuentan
+una historia coherente. En <a href="../H1/reporte_h1.html">H1</a>,
+la humedad predice con claridad <i>cuánta</i> diversidad hay
+(R² = 0.21). En <a href="../H2/reporte_h2.html">H2</a> y aquí en
+H3, ninguna variable ambiental predice con la misma fuerza
+<i>cuáles</i> bacterias específicas dominan la composición (R²
+individuales ~0.05, conjunto ~0.13). Esto sugiere que la cantidad
+de bacterias que sobreviven a la aridez depende bastante del
+ambiente local, pero qué bacterias exactas sobreviven depende
+también de factores que no medimos aquí (dispersión, historia de
+colonización de cada sitio, interacciones entre especies, pH,
+nutrientes).</p>
+</div>
+
+<div class="dificultades">
+<h2>Dificultades y limitaciones</h2>
+<ul>
+<li><b>Tamaño de muestra para permutaciones:</b> con n=51-54,
+999 permutaciones ya cubren prácticamente todos los reordenamientos
+"interesantes" — el p-valor mínimo posible es 0.001, y las tres
+variables lo alcanzan. Esto confirma que el efecto es real, pero
+no distingue bien cuál variable es "la más" significativa
+usando solo el p-valor.</li>
+<li><b>Modelo conjunto simplificado:</b> el modelo multivariado
+que implementamos prueba contribuciones marginales de a una
+variable por vez (permutando una columna manteniendo las otras
+fijas) — es un análogo simplificado de lo que hace
+<code>vegan::adonis2(..., by="margin")</code> en R, no una
+implementación completa de dbRDA con selección de modelos.</li>
+<li><b>El R² conjunto (0.13) sigue por debajo del rango esperado
+por el paper (0.20-0.50):</b> incluso combinando las 3 variables,
+no alcanzamos el R² reportado originalmente. Las causas más
+probables (tamaño de muestra reducido a 54 en este curso,
+diferencias de normalización de OTUs) ya se detallan más arriba —
+vale la pena verificarlo con el dataset completo del paper si se
+quiere una réplica más cercana.</li>
+</ul>
 </div>
 
 <footer>

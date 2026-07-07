@@ -33,6 +33,138 @@ VARIABLE_COLORS = {
     'elevacion': COLOR_ELEVACION,
 }
 
+
+def estilo_css(color_inicio, color_fin):
+    """
+    CSS compartido por los 3 reportes HTML (H1, H2, H3), para que
+    los tres luzcan consistentes. Solo cambia el degradado del
+    encabezado por reporte.
+    """
+    return f"""
+    :root {{
+      --azul: #0072B2; --naranja: #D55E00; --verde: #009E73;
+      --amarillo: #E69F00;
+      --bg: #f4f6f9; --card-bg: #ffffff; --texto: #1c2530;
+      --texto-suave: #495365; --borde: #e2e6ec;
+    }}
+    * {{ box-sizing: border-box; }}
+    html {{ font-size: 17px; }}
+    body {{
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg); color: var(--texto);
+      max-width: 980px; margin: 0 auto; padding: 0 20px 70px;
+      line-height: 1.65; font-size: 1rem;
+    }}
+    header {{
+      background: linear-gradient(135deg, {color_inicio}, {color_fin});
+      color: white; margin: 0 -20px 28px; padding: 42px 40px 34px;
+      border-radius: 0 0 20px 20px;
+    }}
+    header h1 {{ margin: 0 0 10px; font-size: 2.1rem; line-height: 1.25; }}
+    header p {{ margin: 0; opacity: 0.95; font-size: 1.15rem; }}
+    nav.tabs {{ display: flex; gap: 10px; flex-wrap: wrap;
+                margin: 0 0 28px; }}
+    nav.tabs a {{
+      padding: 10px 20px; border-radius: 999px; text-decoration: none;
+      font-weight: 600; font-size: 0.98rem; border: 1px solid var(--borde);
+      color: var(--texto); background: white;
+    }}
+    nav.tabs a.activo {{
+      background: var(--texto); color: white; border-color: var(--texto);
+    }}
+    h2 {{
+      font-size: 1.55rem; color: var(--azul); margin-top: 2.4em;
+      display: flex; align-items: center; gap: 10px;
+    }}
+    h2::before {{ content: ""; width: 7px; height: 27px;
+                  background: var(--azul); border-radius: 4px; }}
+    .card {{
+      background: var(--card-bg); border: 1px solid var(--borde);
+      border-radius: 14px; padding: 24px 28px; margin: 18px 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05); font-size: 1rem;
+    }}
+    .pregunta-box {{
+      background: #eef4fb; border-left: 5px solid var(--azul);
+      border-radius: 10px; padding: 20px 24px; font-size: 1.12rem;
+    }}
+    .ref-box {{
+      background: #fff8e9; border-left: 5px solid var(--amarillo);
+      border-radius: 10px; padding: 16px 22px; font-size: 0.98rem;
+      margin: 16px 0; color: #6b4c00;
+    }}
+    .ref-box a {{ color: #6b4c00; font-weight: 600; }}
+    .glosario-grid {{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 16px;
+    }}
+    .term-card {{
+      background: var(--card-bg); border: 1px solid var(--borde);
+      border-left: 4px solid var(--naranja); border-radius: 10px;
+      padding: 18px 22px;
+    }}
+    .term-card h3 {{ margin: 0 0 8px; font-size: 1.08rem;
+                     color: var(--naranja); }}
+    .term-card p {{ margin: 0; font-size: 1rem;
+                    color: var(--texto-suave); line-height: 1.55; }}
+    table {{ border-collapse: collapse; width: 100%; margin: 0.7em 0;
+             font-size: 1rem; }}
+    th, td {{ border: 1px solid var(--borde); padding: 10px 16px;
+              text-align: right; }}
+    th {{ background: #eef2f7; color: var(--texto); font-size: 0.97rem; }}
+    td:first-child, th:first-child {{ text-align: left; }}
+    tr:nth-child(even) td {{ background: #fafbfc; }}
+    img {{ max-width: 100%; border-radius: 12px;
+           border: 1px solid var(--borde); margin: 14px 0;
+           display: block; }}
+    .caption {{ font-size: 0.97rem; color: var(--texto-suave);
+                max-width: 760px; }}
+    .contraste-grid {{ display: grid; grid-template-columns: 1fr 1fr;
+                        gap: 16px; }}
+    .contraste-col {{ border-radius: 12px; padding: 20px 24px; }}
+    .col-esperado {{ background: #eef4fb; border: 1px solid #c9ddf0; }}
+    .col-encontrado {{ background: #fdf1e8; border: 1px solid #f3d3b8; }}
+    .contraste-col h3 {{ margin-top: 0; font-size: 1.08rem; }}
+    .col-esperado h3 {{ color: var(--azul); }}
+    .col-encontrado h3 {{ color: var(--naranja); }}
+    .badge {{ display: inline-block; padding: 4px 14px;
+              border-radius: 999px; font-size: 0.92rem;
+              font-weight: 600; }}
+    .badge-ok {{ background: #d7f2ea; color: #036e51; }}
+    .badge-warn {{ background: #fde3d0; color: #9a4400; }}
+    .conclusion {{ background: #f7f9fb; border-left: 5px solid var(--azul);
+                   border-radius: 10px; padding: 24px 28px;
+                   margin: 1.8em 0; }}
+    .conclusion h2::before {{ background: var(--verde); }}
+    .dificultades {{ background: #fdf2f2; border-left: 5px solid #c0392b;
+                      border-radius: 10px; padding: 22px 26px;
+                      margin: 1.6em 0; }}
+    .dificultades h2 {{ color: #c0392b; }}
+    .dificultades h2::before {{ background: #c0392b; }}
+    footer {{ margin-top: 3em; padding-top: 1.2em;
+              border-top: 1px solid var(--borde); font-size: 0.92rem;
+              color: var(--texto-suave); }}
+    @media (max-width: 640px) {{
+      .contraste-grid {{ grid-template-columns: 1fr; }}
+    }}
+    """
+
+
+def barra_navegacion(actual):
+    """Pestañas de navegación entre los 3 reportes HTML."""
+    enlaces = [
+        ('H1', 'Diversidad alfa', '../H1/reporte_h1.html'),
+        ('H2', 'Composición (PCoA)', '../H2/reporte_h2.html'),
+        ('H3', 'Variable dominante', '../H3/reporte_h3.html'),
+    ]
+    items = []
+    for clave, titulo, href in enlaces:
+        clase = 'activo' if clave == actual else ''
+        items.append(
+            f'<a class="{clase}" href="{href}">{clave} · '
+            f'{titulo}</a>')
+    return '<nav class="tabs">' + ''.join(items) + '</nav>'
+
 # ============================================================================
 # PASO 0: Carga de datos
 # ============================================================================
@@ -332,6 +464,209 @@ def generar_pdf_estilo_articulo(df_h1, stats_h1):
           "outputs/H1/figuras_H1_articulo.pdf")
 
 
+def generar_reporte_html_h1(df_h1, resumen_h1, corr_h1, stats_h1):
+    """
+    Genera el reporte HTML de H1: glosario de términos base
+    (Shannon, Spearman, regresión, R², p-valor — que H2 y H3 no
+    repiten y solo referencian), resultados, interpretación
+    completa y adelanto de cómo contrasta con H2/H3.
+    """
+    import base64
+
+    with open(
+        'outputs/H1/fig1_shannon_por_transecto_y_regresion.png',
+        'rb'
+    ) as f:
+        img_b64 = base64.b64encode(f.read()).decode('utf-8')
+
+    resumen_html = resumen_h1.to_html(
+        index=False, float_format='%.3f')
+    corr_html = corr_h1.to_html(index=False, float_format='%.4f')
+
+    rho = stats_h1['spearman_rho']
+    r2 = stats_h1['r_squared']
+    p_val = stats_h1['p_value']
+    n = corr_h1.iloc[0]['n']
+
+    media_baq = resumen_h1.loc[
+        resumen_h1['transect-name'] == 'Baquedano', 'mean'].iloc[0]
+    media_yun = resumen_h1.loc[
+        resumen_h1['transect-name'] == 'Yungay', 'mean'].iloc[0]
+    diferencia_pct = (media_baq - media_yun) / media_yun * 100
+
+    html = f"""<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reporte H1 — Diversidad alfa vs. humedad del suelo</title>
+<style>{estilo_css('#D55E00', '#009E73')}</style>
+</head>
+<body>
+
+<header>
+  <h1>H1 — Diversidad alfa y aridez del suelo</h1>
+  <p>Índice de Shannon vs. humedad relativa del suelo — desierto
+  de Atacama (Neilson et al. 2017)</p>
+</header>
+
+{barra_navegacion('H1')}
+
+<div class="pregunta-box">
+  <b>Pregunta biológica:</b> ¿A menor humedad relativa del suelo
+  (AvgSoilRH), hay menor diversidad alfa (menos tipos de
+  bacterias, medida con el índice de Shannon)?
+</div>
+
+<h2>Glosario: qué significa cada término</h2>
+<div class="glosario-grid">
+  <div class="term-card">
+    <h3>Diversidad alfa</h3>
+    <p>Cuántos tipos distintos de bacterias hay dentro de UNA
+    muestra, y qué tan repartida está su abundancia entre ellos.
+    Es diversidad "local", dentro de un solo punto de muestreo
+    (distinto de comparar composición ENTRE muestras, que se ve
+    en H2).</p>
+  </div>
+  <div class="term-card">
+    <h3>Índice de Shannon (H')</h3>
+    <p>Número que combina cuántas especies hay (riqueza) y qué
+    tan equitativa es su abundancia. Sube cuando hay más tipos de
+    bacterias y ninguna domina de forma aplastante; baja cuando
+    pocas especies concentran casi toda la abundancia.</p>
+  </div>
+  <div class="term-card">
+    <h3>Correlación de Spearman (ρ)</h3>
+    <p>Mide si dos variables suben y bajan juntas (sin asumir que
+    la relación sea una línea recta perfecta). Va de -1 (relación
+    inversa perfecta) a +1 (relación directa perfecta); 0 = sin
+    relación. Es la misma métrica que usa el paper original.</p>
+  </div>
+  <div class="term-card">
+    <h3>Regresión lineal y R²</h3>
+    <p>La regresión ajusta la mejor línea recta que describe cómo
+    cambia Shannon según la humedad. El <b>R²</b> dice qué
+    porcentaje de toda la variación en Shannon queda explicado
+    por esa línea (por la humedad) — el resto se debe a otros
+    factores no medidos.</p>
+  </div>
+  <div class="term-card">
+    <h3>p-valor</h3>
+    <p>Probabilidad de observar una relación así de fuerte si en
+    realidad no existiera ninguna conexión real entre humedad y
+    diversidad (puro azar). Valores pequeños (convencionalmente
+    p &lt; 0.05) indican que la relación observada es
+    estadísticamente real, no ruido.</p>
+  </div>
+  <div class="term-card">
+    <h3>Intervalo de confianza 95%</h3>
+    <p>La banda sombreada alrededor de la línea de regresión:
+    representa el rango donde razonablemente caería la línea real
+    si repitiéramos el muestreo muchas veces. Bandas más angostas
+    = estimación más precisa.</p>
+  </div>
+</div>
+<p class="caption">Estos términos NO se repiten en los reportes
+de H2 y H3 — ahí solo se explican los conceptos nuevos, con un
+recuadro que enlaza de vuelta aquí cuando se reutiliza R² o
+p-valor.</p>
+
+<h2>Resultados numéricos</h2>
+<div class="card">
+  <p><b>Resumen de Shannon por transecto:</b></p>
+  {resumen_html}
+  <p class="caption">Baquedano (más húmedo) tiene una media de
+  Shannon {diferencia_pct:.0f}% más alta que Yungay (más árido).</p>
+</div>
+
+<div class="card">
+  <p><b>Correlación de Spearman (Shannon vs. humedad):</b></p>
+  {corr_html}
+  <p><b>Regresión lineal:</b> R² = {r2:.3f}, p = {p_val:.4f},
+  n = {n}</p>
+</div>
+
+<h2>Figura</h2>
+<div class="card">
+  <img src="data:image/png;base64,{img_b64}"
+       alt="Shannon por transecto y regresion vs humedad">
+  <p class="caption">Figura 1. Izquierda: distribución del índice
+  de Shannon por transecto. Derecha: relación entre humedad
+  relativa promedio del suelo y diversidad de Shannon, con línea
+  de regresión y banda de confianza al 95%.</p>
+</div>
+
+<div class="conclusion">
+<h2>Conclusión biológica</h2>
+<p><b>H1 <span class="badge badge-ok">SE CONFIRMA</span></b> con
+estos datos: existe una correlación positiva y estadísticamente
+significativa entre humedad del suelo y diversidad microbiana
+(ρ = {rho:.3f}, p = {p_val:.4f}). El modelo lineal explica
+{r2*100:.1f}% de la variación en Shannon (R² = {r2:.3f}) — un
+efecto moderado pero real: la mayor parte de la variación restante
+(~{100-r2*100:.0f}%) se debe a otros factores no capturados por la
+humedad por sí sola (pH, nutrientes, microhábitats puntuales,
+historia de cada sitio, etc.).</p>
+
+<p><b>Interpretación biológica:</b> el agua es el recurso más
+limitante para la vida microbiana en un desierto. Donde hay más
+humedad, sobreviven y coexisten más tipos de bacterias —
+generalistas y especialistas por igual — porque hay más nichos
+metabólicos disponibles. Donde el suelo es más seco, solo
+persisten las bacterias tolerantes a la desecación, y esos
+"especialistas del estrés hídrico" terminan dominando, reduciendo
+la diversidad total.</p>
+
+<p><b>Contraste con H2 y H3 (composición):</b> este efecto sobre
+la <i>cantidad</i> de diversidad es el más fuerte y claro de las
+tres hipótesis evaluadas en este análisis. Como se ve en los
+reportes de <a href="../H2/reporte_h2.html">H2</a> y
+<a href="../H3/reporte_h3.html">H3</a>, el efecto de la aridez
+sobre <i>qué bacterias específicas</i> viven en cada sitio
+(composición) es mucho más débil y está repartido entre varias
+variables ambientales a la vez — no solo humedad. Es decir: la
+aridez reduce claramente cuántos tipos de bacterias hay, pero no
+determina de forma igual de nítida cuáles son esas bacterias.</p>
+</div>
+
+<div class="dificultades">
+<h2>Dificultades y limitaciones</h2>
+<ul>
+<li><b>Datos faltantes:</b> 3 de las 54 muestras no tienen dato
+de humedad relativa, por lo que la correlación y regresión se
+calculan con n = 51, no n = 54. Los resúmenes por transecto sí
+usan las 54.</li>
+<li><b>Relación no perfectamente lineal:</b> R² = 0.21 significa
+que, aunque la tendencia es clara y significativa, hay bastante
+dispersión alrededor de la línea — no se puede predecir con
+precisión la diversidad de una muestra individual solo a partir
+de su humedad.</li>
+<li><b>Rangos de humedad solapados entre transectos:</b> como ya
+se había notado en los datos, Baquedano y Yungay tienen rangos de
+humedad muy amplios y parecidos entre sí (~15%-100% ambos) — el
+efecto que encontramos es sobre el gradiente continuo de humedad,
+no una simple comparación "transecto húmedo vs. transecto árido"
+(ver <a href="../H2/reporte_h2.html">H2</a> para más sobre esto).</li>
+</ul>
+</div>
+
+<footer>
+  Generado automáticamente por <code>solution.py</code> — curso de
+  ecología de comunidades con Claude Code. Datos: Neilson et al.
+  (2017), mSystems.
+</footer>
+
+</body>
+</html>
+"""
+
+    with open('outputs/H1/reporte_h1.html', 'w',
+             encoding='utf-8') as f:
+        f.write(html)
+
+    print("\n[OK] Reporte HTML guardado en outputs/H1/reporte_h1.html")
+
+
 # ============================================================================
 # H2: Composición (beta-diversidad) — Bray-Curtis, PCoA y PERMANOVA
 # ============================================================================
@@ -548,151 +883,7 @@ def generar_reporte_html_h2(var_table, df_permanova,
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Reporte H2 — Composición microbiana (PCoA Bray-Curtis)</title>
-<style>
-  :root {{
-    --azul: #0072B2;
-    --naranja: #D55E00;
-    --verde: #009E73;
-    --bg: #f4f6f9;
-    --card-bg: #ffffff;
-    --texto: #1c2530;
-    --texto-suave: #5a6472;
-    --borde: #e2e6ec;
-  }}
-  * {{ box-sizing: border-box; }}
-  body {{
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--texto);
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 0 20px 60px;
-    line-height: 1.6;
-  }}
-  header {{
-    background: linear-gradient(135deg, var(--azul), var(--naranja));
-    color: white;
-    margin: 0 -20px 32px;
-    padding: 36px 40px;
-    border-radius: 0 0 18px 18px;
-  }}
-  header h1 {{ margin: 0 0 8px; font-size: 1.7em; }}
-  header p {{ margin: 0; opacity: 0.95; font-size: 1.05em; }}
-  h2 {{
-    font-size: 1.25em;
-    color: var(--azul);
-    margin-top: 2.2em;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }}
-  h2::before {{ content: ""; width: 6px; height: 22px;
-                background: var(--azul); border-radius: 3px; }}
-  .card {{
-    background: var(--card-bg);
-    border: 1px solid var(--borde);
-    border-radius: 12px;
-    padding: 20px 24px;
-    margin: 16px 0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-  }}
-  .pregunta-box {{
-    background: #eef4fb;
-    border-left: 5px solid var(--azul);
-    border-radius: 8px;
-    padding: 16px 20px;
-    font-size: 1.05em;
-  }}
-  .glosario-grid {{
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 14px;
-  }}
-  .term-card {{
-    background: var(--card-bg);
-    border: 1px solid var(--borde);
-    border-left: 4px solid var(--naranja);
-    border-radius: 8px;
-    padding: 14px 18px;
-  }}
-  .term-card h3 {{
-    margin: 0 0 6px; font-size: 1em; color: var(--naranja);
-  }}
-  .term-card p {{ margin: 0; font-size: 0.92em;
-                  color: var(--texto-suave); }}
-  table {{
-    border-collapse: collapse;
-    width: 100%;
-    margin: 0.5em 0;
-    font-size: 0.95em;
-  }}
-  th, td {{
-    border: 1px solid var(--borde);
-    padding: 8px 14px;
-    text-align: right;
-  }}
-  th {{ background: #eef2f7; color: var(--texto); }}
-  td:first-child, th:first-child {{ text-align: left; }}
-  tr:nth-child(even) td {{ background: #fafbfc; }}
-  img {{
-    max-width: 100%;
-    border-radius: 10px;
-    border: 1px solid var(--borde);
-    margin: 10px 0;
-    display: block;
-  }}
-  .caption {{
-    font-size: 0.88em; color: var(--texto-suave);
-    max-width: 720px;
-  }}
-  .contraste-grid {{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-  }}
-  .contraste-col {{
-    border-radius: 10px;
-    padding: 16px 20px;
-  }}
-  .col-esperado {{
-    background: #eef4fb;
-    border: 1px solid #c9ddf0;
-  }}
-  .col-encontrado {{
-    background: #fdf1e8;
-    border: 1px solid #f3d3b8;
-  }}
-  .contraste-col h3 {{
-    margin-top: 0; font-size: 1em;
-  }}
-  .col-esperado h3 {{ color: var(--azul); }}
-  .col-encontrado h3 {{ color: var(--naranja); }}
-  .badge {{
-    display: inline-block;
-    padding: 3px 12px;
-    border-radius: 999px;
-    font-size: 0.85em;
-    font-weight: 600;
-  }}
-  .badge-ok {{ background: #d7f2ea; color: #036e51; }}
-  .badge-warn {{ background: #fde3d0; color: #9a4400; }}
-  .conclusion {{
-    background: #f7f9fb;
-    border-left: 5px solid var(--azul);
-    border-radius: 8px;
-    padding: 18px 22px;
-    margin: 1.5em 0;
-  }}
-  .conclusion h2::before {{ background: var(--verde); }}
-  footer {{
-    margin-top: 3em; padding-top: 1em;
-    border-top: 1px solid var(--borde);
-    font-size: 0.85em; color: var(--texto-suave);
-  }}
-  @media (max-width: 640px) {{
-    .contraste-grid {{ grid-template-columns: 1fr; }}
-  }}
-</style>
+<style>{estilo_css('#0072B2', '#D55E00')}</style>
 </head>
 <body>
 
@@ -701,6 +892,8 @@ def generar_reporte_html_h2(var_table, df_permanova,
   <p>Ordenación PCoA basada en distancias Bray-Curtis —
   desierto de Atacama (Neilson et al. 2017)</p>
 </header>
+
+{barra_navegacion('H2')}
 
 <div class="pregunta-box">
   <b>Pregunta biológica:</b> ¿Los sitios más áridos (Yungay) tienen
@@ -734,12 +927,18 @@ def generar_reporte_html_h2(var_table, df_permanova,
     una señal de error, es la naturaleza de estos datos.</p>
   </div>
   <div class="term-card">
-    <h3>PERMANOVA / R²</h3>
+    <h3>PERMANOVA (nueva técnica)</h3>
     <p>Prueba estadística que compara la composición microbiana
-    observada contra 999 reordenamientos aleatorios de los datos.
-    El R² indica qué porcentaje de la variación composicional
-    total se explica por una variable ambiental específica.</p>
+    observada contra 999 reordenamientos aleatorios de los datos,
+    para ver si una variable ambiental se relaciona con la
+    composición más de lo que esperaríamos por puro azar.</p>
   </div>
+</div>
+<div class="ref-box">
+  <b>Nota:</b> los términos R² y p-valor ya se explicaron en el
+  <a href="../H1/reporte_h1.html">reporte de H1</a> — significan
+  lo mismo aquí, solo que ahora aplicados a distancias Bray-Curtis
+  en vez de al índice de Shannon.
 </div>
 
 <h2>Ordenación PCoA</h2>
@@ -824,6 +1023,40 @@ Baquedano (ambos van de ~15% a 100%, con medias similares). La
 composición microbiana responde al ambiente real de cada sitio
 específico, no a la etiqueta administrativa del transecto al que
 pertenece.</p>
+
+<p><b>Contraste con H1 (diversidad alfa):</b> en
+<a href="../H1/reporte_h1.html">H1</a> vimos que la
+<i>cantidad</i> de diversidad sí responde con claridad a la
+humedad (R² = 0.21, separación visible entre transectos). Aquí,
+en cambio, la <i>identidad</i> de las bacterias (composición) casi
+no distingue entre transectos. Juntando ambos resultados: la
+aridez "adelgaza" la comunidad microbiana (menos tipos de
+bacterias sobreviven) más de lo que la "reemplaza" por completo
+por otro conjunto de especies distinto. Es un filtro parcial, no
+un recambio total.</p>
+</div>
+
+<div class="dificultades">
+<h2>Dificultades y limitaciones</h2>
+<ul>
+<li><b>Baja varianza explicada por el PCoA:</b> PC1 + PC2 solo
+capturan ~14% de toda la variación composicional. Con 1,109 OTUs
+variando de forma independiente, es matemáticamente imposible que
+2 ejes resuman toda la complejidad — cualquier separación real
+entre grupos podría estar en ejes superiores (PC3, PC4...) que no
+graficamos aquí.</li>
+<li><b>PERMANOVA univariado simplificado:</b> implementamos la
+prueba manualmente (sin librerías externas de ecología como
+scikit-bio, que no estaban disponibles en este entorno) siguiendo
+el método de McArdle & Anderson (2001). Verificamos que coincide
+exactamente con los valores de referencia del curso, pero es una
+versión simplificada (un solo predictor a la vez) del PERMANOVA
+completo que usan paquetes como <code>vegan::adonis2</code> en R.</li>
+<li><b>Tamaño de muestra:</b> n=54 (o menos, según variable) es
+pequeño para un análisis de composición con miles de OTUs —
+patrones sutiles de separación podrían no alcanzar significancia
+estadística con tan pocas muestras.</li>
+</ul>
 </div>
 
 <footer>
@@ -1191,88 +1424,7 @@ def generar_reporte_html_h3(df_h3, comparacion, resumen_total,
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Reporte H3 — Variable ambiental con mayor R²</title>
-<style>
-  :root {{
-    --azul: #0072B2; --naranja: #D55E00; --verde: #009E73;
-    --bg: #f4f6f9; --card-bg: #ffffff; --texto: #1c2530;
-    --texto-suave: #5a6472; --borde: #e2e6ec;
-  }}
-  * {{ box-sizing: border-box; }}
-  body {{
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg); color: var(--texto);
-    max-width: 960px; margin: 0 auto; padding: 0 20px 60px;
-    line-height: 1.6;
-  }}
-  header {{
-    background: linear-gradient(135deg, var(--verde), var(--azul));
-    color: white; margin: 0 -20px 32px; padding: 36px 40px;
-    border-radius: 0 0 18px 18px;
-  }}
-  header h1 {{ margin: 0 0 8px; font-size: 1.7em; }}
-  header p {{ margin: 0; opacity: 0.95; font-size: 1.05em; }}
-  h2 {{
-    font-size: 1.25em; color: var(--azul); margin-top: 2.2em;
-    display: flex; align-items: center; gap: 8px;
-  }}
-  h2::before {{ content: ""; width: 6px; height: 22px;
-                background: var(--azul); border-radius: 3px; }}
-  .card {{
-    background: var(--card-bg); border: 1px solid var(--borde);
-    border-radius: 12px; padding: 20px 24px; margin: 16px 0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-  }}
-  .pregunta-box {{
-    background: #eef4fb; border-left: 5px solid var(--azul);
-    border-radius: 8px; padding: 16px 20px; font-size: 1.05em;
-  }}
-  .glosario-grid {{
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 14px;
-  }}
-  .term-card {{
-    background: var(--card-bg); border: 1px solid var(--borde);
-    border-left: 4px solid var(--naranja); border-radius: 8px;
-    padding: 14px 18px;
-  }}
-  .term-card h3 {{ margin: 0 0 6px; font-size: 1em;
-                   color: var(--naranja); }}
-  .term-card p {{ margin: 0; font-size: 0.92em;
-                  color: var(--texto-suave); }}
-  table {{
-    border-collapse: collapse; width: 100%; margin: 0.5em 0;
-    font-size: 0.95em;
-  }}
-  th, td {{ border: 1px solid var(--borde); padding: 8px 14px;
-            text-align: right; }}
-  th {{ background: #eef2f7; color: var(--texto); }}
-  td:first-child, th:first-child {{ text-align: left; }}
-  tr:nth-child(even) td {{ background: #fafbfc; }}
-  img {{
-    max-width: 100%; border-radius: 10px;
-    border: 1px solid var(--borde); margin: 10px 0;
-    display: block;
-  }}
-  .caption {{ font-size: 0.88em; color: var(--texto-suave);
-              max-width: 720px; }}
-  .badge {{
-    display: inline-block; padding: 3px 12px; border-radius: 999px;
-    font-size: 0.85em; font-weight: 600;
-  }}
-  .badge-ok {{ background: #d7f2ea; color: #036e51; }}
-  .badge-warn {{ background: #fde3d0; color: #9a4400; }}
-  .conclusion {{
-    background: #f7f9fb; border-left: 5px solid var(--azul);
-    border-radius: 8px; padding: 18px 22px; margin: 1.5em 0;
-  }}
-  .conclusion h2::before {{ background: var(--verde); }}
-  footer {{
-    margin-top: 3em; padding-top: 1em;
-    border-top: 1px solid var(--borde);
-    font-size: 0.85em; color: var(--texto-suave);
-  }}
-</style>
+<style>{estilo_css('#009E73', '#0072B2')}</style>
 </head>
 <body>
 
@@ -1281,6 +1433,8 @@ def generar_reporte_html_h3(df_h3, comparacion, resumen_total,
   <p>Comparación de humedad, temperatura y elevación — desierto
   de Atacama (Neilson et al. 2017)</p>
 </header>
+
+{barra_navegacion('H3')}
 
 <div class="pregunta-box">
   <b>Pregunta biológica:</b> ¿La humedad relativa del suelo
@@ -1292,32 +1446,25 @@ def generar_reporte_html_h3(df_h3, comparacion, resumen_total,
 <h2>Glosario: qué significa cada término</h2>
 <div class="glosario-grid">
   <div class="term-card">
-    <h3>R² (varianza explicada)</h3>
-    <p>Porcentaje de toda la variación en composición microbiana
-    (distancias Bray-Curtis) que se explica por una sola variable
-    ambiental. Más alto = esa variable es más determinante para
-    quién vive en el suelo.</p>
-  </div>
-  <div class="term-card">
     <h3>F (estadístico)</h3>
     <p>Compara cuánta varianza explica el modelo frente a la
     varianza que queda sin explicar. Valores más altos indican
     una relación más fuerte entre la variable y la composición.</p>
   </div>
   <div class="term-card">
-    <h3>p-valor</h3>
-    <p>Probabilidad de observar un R² así de alto si la variable
-    no tuviera ninguna relación real con la composición (puro
-    azar). p = 0.001 es el mínimo posible con 999 permutaciones:
-    ninguna de las 999 reordenadas al azar superó el resultado
-    real.</p>
+    <h3>Modelo univariado vs. marginal vs. conjunto</h3>
+    <p><b>Univariado:</b> se prueba una variable sola.
+    <b>Conjunto:</b> se prueban las 3 variables juntas en un solo
+    modelo. <b>Marginal:</b> el aporte único de una variable
+    dentro del modelo conjunto, descontando lo que ya explican
+    las otras dos.</p>
   </div>
-  <div class="term-card">
-    <h3>PERMANOVA univariado</h3>
-    <p>La misma prueba usada en H2, aplicada aquí una vez por
-    cada variable ambiental por separado, para poder comparar
-    cuál explica más.</p>
-  </div>
+</div>
+<div class="ref-box">
+  <b>Nota:</b> R², p-valor y PERMANOVA ya se explicaron en
+  <a href="../H1/reporte_h1.html">H1</a> y
+  <a href="../H2/reporte_h2.html">H2</a> — aquí se reutilizan sin
+  volver a definirlos.
 </div>
 
 <h2>Variable con mayor R²</h2>
@@ -1344,24 +1491,9 @@ def generar_reporte_html_h3(df_h3, comparacion, resumen_total,
 <div class="pregunta-box">
   <b>Pregunta:</b> Cada variable ambiental explica poco por sí
   sola (~5%). ¿Es porque comparten información entre sí (están
-  correlacionadas) y al juntarlas explican más en total?
-</div>
-
-<div class="glosario-grid">
-  <div class="term-card">
-    <h3>Modelo conjunto (R² total)</h3>
-    <p>Se meten las 3 variables ambientales al mismo tiempo en un
-    solo modelo. El R² total indica cuánta varianza composicional
-    explican las tres juntas.</p>
-  </div>
-  <div class="term-card">
-    <h3>R² marginal</h3>
-    <p>La contribución única de una variable, después de
-    descontar lo que ya explican las otras dos. Si el R²
-    marginal es mucho menor que el R² univariado (solo), significa
-    que esa variable comparte información con las demás (están
-    correlacionadas entre sí).</p>
-  </div>
+  correlacionadas) y al juntarlas explican más en total? (Ver
+  definiciones de "conjunto" y "marginal" en el glosario de
+  arriba.)
 </div>
 
 <div class="card">
@@ -1439,6 +1571,44 @@ significativo (p = 0.001 en las tres), pero de magnitud modesta
 en este subconjunto de datos — no tan dominante como sugiere el
 texto original de H3, y sin una diferencia clara entre humedad,
 temperatura y elevación, ni siquiera al modelarlas en conjunto.</p>
+
+<p><b>Contraste con H1 y H2:</b> las tres hipótesis juntas cuentan
+una historia coherente. En <a href="../H1/reporte_h1.html">H1</a>,
+la humedad predice con claridad <i>cuánta</i> diversidad hay
+(R² = 0.21). En <a href="../H2/reporte_h2.html">H2</a> y aquí en
+H3, ninguna variable ambiental predice con la misma fuerza
+<i>cuáles</i> bacterias específicas dominan la composición (R²
+individuales ~0.05, conjunto ~0.13). Esto sugiere que la cantidad
+de bacterias que sobreviven a la aridez depende bastante del
+ambiente local, pero qué bacterias exactas sobreviven depende
+también de factores que no medimos aquí (dispersión, historia de
+colonización de cada sitio, interacciones entre especies, pH,
+nutrientes).</p>
+</div>
+
+<div class="dificultades">
+<h2>Dificultades y limitaciones</h2>
+<ul>
+<li><b>Tamaño de muestra para permutaciones:</b> con n=51-54,
+999 permutaciones ya cubren prácticamente todos los reordenamientos
+"interesantes" — el p-valor mínimo posible es 0.001, y las tres
+variables lo alcanzan. Esto confirma que el efecto es real, pero
+no distingue bien cuál variable es "la más" significativa
+usando solo el p-valor.</li>
+<li><b>Modelo conjunto simplificado:</b> el modelo multivariado
+que implementamos prueba contribuciones marginales de a una
+variable por vez (permutando una columna manteniendo las otras
+fijas) — es un análogo simplificado de lo que hace
+<code>vegan::adonis2(..., by="margin")</code> en R, no una
+implementación completa de dbRDA con selección de modelos.</li>
+<li><b>El R² conjunto (0.13) sigue por debajo del rango esperado
+por el paper (0.20-0.50):</b> incluso combinando las 3 variables,
+no alcanzamos el R² reportado originalmente. Las causas más
+probables (tamaño de muestra reducido a 54 en este curso,
+diferencias de normalización de OTUs) ya se detallan más arriba —
+vale la pena verificarlo con el dataset completo del paper si se
+quiere una réplica más cercana.</li>
+</ul>
 </div>
 
 <footer>
@@ -1475,6 +1645,8 @@ if __name__ == '__main__':
     print("\n[OK] H1 completado. Archivos guardados en outputs/H1/")
 
     generar_pdf_estilo_articulo(df_h1, stats_h1)
+
+    generar_reporte_html_h1(df_h1, resumen_h1, corr_h1, stats_h1)
 
     print("\n" + "="*70)
     print("H2: Composición microbiana (PCoA Bray-Curtis) vs. aridez")

@@ -5,150 +5,113 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Reporte H2 — Composición microbiana (PCoA Bray-Curtis)</title>
 <style>
-  :root {
-    --azul: #0072B2;
-    --naranja: #D55E00;
-    --verde: #009E73;
-    --bg: #f4f6f9;
-    --card-bg: #ffffff;
-    --texto: #1c2530;
-    --texto-suave: #5a6472;
-    --borde: #e2e6ec;
-  }
-  * { box-sizing: border-box; }
-  body {
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--texto);
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 0 20px 60px;
-    line-height: 1.6;
-  }
-  header {
-    background: linear-gradient(135deg, var(--azul), var(--naranja));
-    color: white;
-    margin: 0 -20px 32px;
-    padding: 36px 40px;
-    border-radius: 0 0 18px 18px;
-  }
-  header h1 { margin: 0 0 8px; font-size: 1.7em; }
-  header p { margin: 0; opacity: 0.95; font-size: 1.05em; }
-  h2 {
-    font-size: 1.25em;
-    color: var(--azul);
-    margin-top: 2.2em;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  h2::before { content: ""; width: 6px; height: 22px;
-                background: var(--azul); border-radius: 3px; }
-  .card {
-    background: var(--card-bg);
-    border: 1px solid var(--borde);
-    border-radius: 12px;
-    padding: 20px 24px;
-    margin: 16px 0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-  }
-  .pregunta-box {
-    background: #eef4fb;
-    border-left: 5px solid var(--azul);
-    border-radius: 8px;
-    padding: 16px 20px;
-    font-size: 1.05em;
-  }
-  .glosario-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 14px;
-  }
-  .term-card {
-    background: var(--card-bg);
-    border: 1px solid var(--borde);
-    border-left: 4px solid var(--naranja);
-    border-radius: 8px;
-    padding: 14px 18px;
-  }
-  .term-card h3 {
-    margin: 0 0 6px; font-size: 1em; color: var(--naranja);
-  }
-  .term-card p { margin: 0; font-size: 0.92em;
-                  color: var(--texto-suave); }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    margin: 0.5em 0;
-    font-size: 0.95em;
-  }
-  th, td {
-    border: 1px solid var(--borde);
-    padding: 8px 14px;
-    text-align: right;
-  }
-  th { background: #eef2f7; color: var(--texto); }
-  td:first-child, th:first-child { text-align: left; }
-  tr:nth-child(even) td { background: #fafbfc; }
-  img {
-    max-width: 100%;
-    border-radius: 10px;
-    border: 1px solid var(--borde);
-    margin: 10px 0;
-    display: block;
-  }
-  .caption {
-    font-size: 0.88em; color: var(--texto-suave);
-    max-width: 720px;
-  }
-  .contraste-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-  }
-  .contraste-col {
-    border-radius: 10px;
-    padding: 16px 20px;
-  }
-  .col-esperado {
-    background: #eef4fb;
-    border: 1px solid #c9ddf0;
-  }
-  .col-encontrado {
-    background: #fdf1e8;
-    border: 1px solid #f3d3b8;
-  }
-  .contraste-col h3 {
-    margin-top: 0; font-size: 1em;
-  }
-  .col-esperado h3 { color: var(--azul); }
-  .col-encontrado h3 { color: var(--naranja); }
-  .badge {
-    display: inline-block;
-    padding: 3px 12px;
-    border-radius: 999px;
-    font-size: 0.85em;
-    font-weight: 600;
-  }
-  .badge-ok { background: #d7f2ea; color: #036e51; }
-  .badge-warn { background: #fde3d0; color: #9a4400; }
-  .conclusion {
-    background: #f7f9fb;
-    border-left: 5px solid var(--azul);
-    border-radius: 8px;
-    padding: 18px 22px;
-    margin: 1.5em 0;
-  }
-  .conclusion h2::before { background: var(--verde); }
-  footer {
-    margin-top: 3em; padding-top: 1em;
-    border-top: 1px solid var(--borde);
-    font-size: 0.85em; color: var(--texto-suave);
-  }
-  @media (max-width: 640px) {
-    .contraste-grid { grid-template-columns: 1fr; }
-  }
-</style>
+    :root {
+      --azul: #0072B2; --naranja: #D55E00; --verde: #009E73;
+      --amarillo: #E69F00;
+      --bg: #f4f6f9; --card-bg: #ffffff; --texto: #1c2530;
+      --texto-suave: #495365; --borde: #e2e6ec;
+    }
+    * { box-sizing: border-box; }
+    html { font-size: 17px; }
+    body {
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg); color: var(--texto);
+      max-width: 980px; margin: 0 auto; padding: 0 20px 70px;
+      line-height: 1.65; font-size: 1rem;
+    }
+    header {
+      background: linear-gradient(135deg, #0072B2, #D55E00);
+      color: white; margin: 0 -20px 28px; padding: 42px 40px 34px;
+      border-radius: 0 0 20px 20px;
+    }
+    header h1 { margin: 0 0 10px; font-size: 2.1rem; line-height: 1.25; }
+    header p { margin: 0; opacity: 0.95; font-size: 1.15rem; }
+    nav.tabs { display: flex; gap: 10px; flex-wrap: wrap;
+                margin: 0 0 28px; }
+    nav.tabs a {
+      padding: 10px 20px; border-radius: 999px; text-decoration: none;
+      font-weight: 600; font-size: 0.98rem; border: 1px solid var(--borde);
+      color: var(--texto); background: white;
+    }
+    nav.tabs a.activo {
+      background: var(--texto); color: white; border-color: var(--texto);
+    }
+    h2 {
+      font-size: 1.55rem; color: var(--azul); margin-top: 2.4em;
+      display: flex; align-items: center; gap: 10px;
+    }
+    h2::before { content: ""; width: 7px; height: 27px;
+                  background: var(--azul); border-radius: 4px; }
+    .card {
+      background: var(--card-bg); border: 1px solid var(--borde);
+      border-radius: 14px; padding: 24px 28px; margin: 18px 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05); font-size: 1rem;
+    }
+    .pregunta-box {
+      background: #eef4fb; border-left: 5px solid var(--azul);
+      border-radius: 10px; padding: 20px 24px; font-size: 1.12rem;
+    }
+    .ref-box {
+      background: #fff8e9; border-left: 5px solid var(--amarillo);
+      border-radius: 10px; padding: 16px 22px; font-size: 0.98rem;
+      margin: 16px 0; color: #6b4c00;
+    }
+    .ref-box a { color: #6b4c00; font-weight: 600; }
+    .glosario-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 16px;
+    }
+    .term-card {
+      background: var(--card-bg); border: 1px solid var(--borde);
+      border-left: 4px solid var(--naranja); border-radius: 10px;
+      padding: 18px 22px;
+    }
+    .term-card h3 { margin: 0 0 8px; font-size: 1.08rem;
+                     color: var(--naranja); }
+    .term-card p { margin: 0; font-size: 1rem;
+                    color: var(--texto-suave); line-height: 1.55; }
+    table { border-collapse: collapse; width: 100%; margin: 0.7em 0;
+             font-size: 1rem; }
+    th, td { border: 1px solid var(--borde); padding: 10px 16px;
+              text-align: right; }
+    th { background: #eef2f7; color: var(--texto); font-size: 0.97rem; }
+    td:first-child, th:first-child { text-align: left; }
+    tr:nth-child(even) td { background: #fafbfc; }
+    img { max-width: 100%; border-radius: 12px;
+           border: 1px solid var(--borde); margin: 14px 0;
+           display: block; }
+    .caption { font-size: 0.97rem; color: var(--texto-suave);
+                max-width: 760px; }
+    .contraste-grid { display: grid; grid-template-columns: 1fr 1fr;
+                        gap: 16px; }
+    .contraste-col { border-radius: 12px; padding: 20px 24px; }
+    .col-esperado { background: #eef4fb; border: 1px solid #c9ddf0; }
+    .col-encontrado { background: #fdf1e8; border: 1px solid #f3d3b8; }
+    .contraste-col h3 { margin-top: 0; font-size: 1.08rem; }
+    .col-esperado h3 { color: var(--azul); }
+    .col-encontrado h3 { color: var(--naranja); }
+    .badge { display: inline-block; padding: 4px 14px;
+              border-radius: 999px; font-size: 0.92rem;
+              font-weight: 600; }
+    .badge-ok { background: #d7f2ea; color: #036e51; }
+    .badge-warn { background: #fde3d0; color: #9a4400; }
+    .conclusion { background: #f7f9fb; border-left: 5px solid var(--azul);
+                   border-radius: 10px; padding: 24px 28px;
+                   margin: 1.8em 0; }
+    .conclusion h2::before { background: var(--verde); }
+    .dificultades { background: #fdf2f2; border-left: 5px solid #c0392b;
+                      border-radius: 10px; padding: 22px 26px;
+                      margin: 1.6em 0; }
+    .dificultades h2 { color: #c0392b; }
+    .dificultades h2::before { background: #c0392b; }
+    footer { margin-top: 3em; padding-top: 1.2em;
+              border-top: 1px solid var(--borde); font-size: 0.92rem;
+              color: var(--texto-suave); }
+    @media (max-width: 640px) {
+      .contraste-grid { grid-template-columns: 1fr; }
+    }
+    </style>
 </head>
 <body>
 
@@ -157,6 +120,8 @@
   <p>Ordenación PCoA basada en distancias Bray-Curtis —
   desierto de Atacama (Neilson et al. 2017)</p>
 </header>
+
+<nav class="tabs"><a class="" href="../H1/reporte_h1.html">H1 · Diversidad alfa</a><a class="activo" href="../H2/reporte_h2.html">H2 · Composición (PCoA)</a><a class="" href="../H3/reporte_h3.html">H3 · Variable dominante</a></nav>
 
 <div class="pregunta-box">
   <b>Pregunta biológica:</b> ¿Los sitios más áridos (Yungay) tienen
@@ -190,12 +155,18 @@
     una señal de error, es la naturaleza de estos datos.</p>
   </div>
   <div class="term-card">
-    <h3>PERMANOVA / R²</h3>
+    <h3>PERMANOVA (nueva técnica)</h3>
     <p>Prueba estadística que compara la composición microbiana
-    observada contra 999 reordenamientos aleatorios de los datos.
-    El R² indica qué porcentaje de la variación composicional
-    total se explica por una variable ambiental específica.</p>
+    observada contra 999 reordenamientos aleatorios de los datos,
+    para ver si una variable ambiental se relaciona con la
+    composición más de lo que esperaríamos por puro azar.</p>
   </div>
+</div>
+<div class="ref-box">
+  <b>Nota:</b> los términos R² y p-valor ya se explicaron en el
+  <a href="../H1/reporte_h1.html">reporte de H1</a> — significan
+  lo mismo aquí, solo que ahora aplicados a distancias Bray-Curtis
+  en vez de al índice de Shannon.
 </div>
 
 <h2>Ordenación PCoA</h2>
@@ -358,6 +329,40 @@ Baquedano (ambos van de ~15% a 100%, con medias similares). La
 composición microbiana responde al ambiente real de cada sitio
 específico, no a la etiqueta administrativa del transecto al que
 pertenece.</p>
+
+<p><b>Contraste con H1 (diversidad alfa):</b> en
+<a href="../H1/reporte_h1.html">H1</a> vimos que la
+<i>cantidad</i> de diversidad sí responde con claridad a la
+humedad (R² = 0.21, separación visible entre transectos). Aquí,
+en cambio, la <i>identidad</i> de las bacterias (composición) casi
+no distingue entre transectos. Juntando ambos resultados: la
+aridez "adelgaza" la comunidad microbiana (menos tipos de
+bacterias sobreviven) más de lo que la "reemplaza" por completo
+por otro conjunto de especies distinto. Es un filtro parcial, no
+un recambio total.</p>
+</div>
+
+<div class="dificultades">
+<h2>Dificultades y limitaciones</h2>
+<ul>
+<li><b>Baja varianza explicada por el PCoA:</b> PC1 + PC2 solo
+capturan ~14% de toda la variación composicional. Con 1,109 OTUs
+variando de forma independiente, es matemáticamente imposible que
+2 ejes resuman toda la complejidad — cualquier separación real
+entre grupos podría estar en ejes superiores (PC3, PC4...) que no
+graficamos aquí.</li>
+<li><b>PERMANOVA univariado simplificado:</b> implementamos la
+prueba manualmente (sin librerías externas de ecología como
+scikit-bio, que no estaban disponibles en este entorno) siguiendo
+el método de McArdle & Anderson (2001). Verificamos que coincide
+exactamente con los valores de referencia del curso, pero es una
+versión simplificada (un solo predictor a la vez) del PERMANOVA
+completo que usan paquetes como <code>vegan::adonis2</code> en R.</li>
+<li><b>Tamaño de muestra:</b> n=54 (o menos, según variable) es
+pequeño para un análisis de composición con miles de OTUs —
+patrones sutiles de separación podrían no alcanzar significancia
+estadística con tan pocas muestras.</li>
+</ul>
 </div>
 
 <footer>
