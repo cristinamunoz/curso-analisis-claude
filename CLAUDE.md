@@ -16,11 +16,11 @@ repositorio.
 
 <!-- Reemplaza este bloque con tu información antes del día 2 -->
 
-Soy ecóloga/o microbiana/o. No tengo experiencia previa en
+Soy oceanografo y biogeoquímico con experiencia en química ambiental. No tengo experiencia previa en
 programación ni en Python. Tengo conocimientos básicos de
 estadística (regresión, correlación) y de ecología de comunidades.
 Necesito que me expliques los resultados en lenguaje biológico
-además de estadístico.
+además de estadístico. Estoy aprendiendo a usar claude y necesito que me vayas ense
 
 ## Sobre el curso
 
@@ -59,7 +59,7 @@ confirmación explícita del usuario.
 
 4. **Outputs**: guarda todas las figuras y tablas resultantes en
 `outputs/` dentro del branch personal. Nunca escribas en `data/`
-ni en `expected_outputs/`.
+ni en `expected_outputs/`. Cada vez que generes algo quiero que lo guardes tambien a nivel local usando git add + git commit
 
 5. **Errores**: si encuentras un error, muéstralo completo y
 explícalo en lenguaje simple. No intentes corregirlo más de
@@ -67,6 +67,7 @@ dos veces sin consultar primero.
 
 6. **Verificación biológica**: al terminar cada análisis, pregunta
 si el resultado tiene sentido biológico antes de continuar.
+
 
 ## Estructura del repositorio
 
@@ -191,7 +192,7 @@ cada prompt.
 4. Reporta siempre: coeficiente de correlación (r o Spearman ρ),
    R², p-valor y n.
 5. Si R² < 0.05, avisa antes de continuar — puede indicar un
-   problema con los datos o el análisis.
+   problema con los datos o el análisis y sugerir soluciones de forma clara.
 
 ### Cuando analices composición (beta-diversidad)
 
@@ -225,7 +226,7 @@ cada prompt.
 4. Si hay discrepancia con `expected_outputs/`, identifica la
    causa probable (normalización, filtrado, índice diferente).
 5. Resume el resultado en máximo dos oraciones en lenguaje
-   biológico, no estadístico.
+   biológico y también otras dos oraciones máximo en lenguaje estadístico.
 
 ## ✏️ Notas personales
 
