@@ -16,11 +16,8 @@ repositorio.
 
 <!-- Reemplaza este bloque con tu información antes del día 2 -->
 
-Soy ecóloga/o microbiana/o. No tengo experiencia previa en
-programación ni en Python. Tengo conocimientos básicos de
-estadística (regresión, correlación) y de ecología de comunidades.
-Necesito que me expliques los resultados en lenguaje biológico
-además de estadístico.
+Soy Cristina, bioinformatica microbiana.Necesito que me expliques 
+los resultados en lenguaje biológico además de estadístico.
 
 ## Sobre el curso
 
@@ -67,6 +64,9 @@ dos veces sin consultar primero.
 
 6. **Verificación biológica**: al terminar cada análisis, pregunta
 si el resultado tiene sentido biológico antes de continuar.
+
+7. **Add y commit**: cada vez que crees o ejecutes un archivo, haz git add y git commit. 
+
 
 ## Estructura del repositorio
 
@@ -232,6 +232,9 @@ cada prompt.
 <!-- Espacio libre para contexto adicional que quieras agregar
      durante el curso: observaciones del dataset, decisiones de
      análisis, preguntas para el instructor, etc. -->
+
+Entregale los resultados en inglés y con graficos construidos en 
+python
 
 ## Paper base
 
