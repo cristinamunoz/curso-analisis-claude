@@ -16,11 +16,11 @@ repositorio.
 
 <!-- Reemplaza este bloque con tu información antes del día 2 -->
 
-Soy ecóloga/o microbiana/o. No tengo experiencia previa en
+Soy oceanógrafo y biogeoquímico ambiental y me estoy iniciando en ecologia microbiana. No tengo experiencia previa en
 programación ni en Python. Tengo conocimientos básicos de
 estadística (regresión, correlación) y de ecología de comunidades.
-Necesito que me expliques los resultados en lenguaje biológico
-además de estadístico.
+Necesito que me expliques los resultados en lenguaje que pueda entender facilmente
+además de estadístico indicando interpretación de resultados.
 
 ## Sobre el curso
 
@@ -191,7 +191,7 @@ cada prompt.
 4. Reporta siempre: coeficiente de correlación (r o Spearman ρ),
    R², p-valor y n.
 5. Si R² < 0.05, avisa antes de continuar — puede indicar un
-   problema con los datos o el análisis.
+   problema con los datos o el análisis y proponer soluciones.
 
 ### Cuando analices composición (beta-diversidad)
 
@@ -229,9 +229,7 @@ cada prompt.
 
 ## ✏️ Notas personales
 
-<!-- Espacio libre para contexto adicional que quieras agregar
-     durante el curso: observaciones del dataset, decisiones de
-     análisis, preguntas para el instructor, etc. -->
+Estoy aprendiendo a usar claude para mis tareas por lo que no soy tan experto
 
 ## Paper base
 
