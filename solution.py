@@ -299,39 +299,37 @@ def graficar_pcoa(coordenadas, metadata, porcentaje_varianza):
     Color: gradiente continuo de humedad relativa del suelo
     (paleta viridis). Forma: transecto (Baquedano vs Yungay), para
     evaluar visualmente la hipotesis H2.
+
+    Las muestras sin dato de humedad no se grafican (no se pueden
+    colorear por el gradiente y solo entorpecen la lectura de la
+    figura), aunque si participaron en el calculo del PCoA.
     """
     datos = coordenadas.join(metadata)
     columna_humedad = "average-soil-relative-humidity"
-    con_humedad = datos[datos[columna_humedad].notna()]
-    sin_humedad = datos[datos[columna_humedad].isna()]
+    n_excluidas = datos[columna_humedad].isna().sum()
+    datos = datos[datos[columna_humedad].notna()]
+
+    if n_excluidas > 0:
+        print(
+            f"\n  AVISO: {n_excluidas} muestra(s) sin dato de "
+            "humedad relativa del suelo - se excluyen solo de "
+            "la figura de PCoA (no del calculo de la ordenacion)."
+        )
 
     fig, ax = plt.subplots(figsize=(8, 6))
 
     marcadores = {"Baquedano": "o", "Yungay": "^"}
 
     dispersión = ax.scatter(
-        con_humedad["PC1"],
-        con_humedad["PC2"],
-        c=con_humedad[columna_humedad],
+        datos["PC1"],
+        datos["PC2"],
+        c=datos[columna_humedad],
         cmap="viridis",
         s=90,
         alpha=0.85,
         edgecolor="black",
         linewidth=0.5,
     )
-
-    if len(sin_humedad) > 0:
-        ax.scatter(
-            sin_humedad["PC1"],
-            sin_humedad["PC2"],
-            facecolor="#d3d3d3",
-            hatch="///",
-            s=90,
-            alpha=0.85,
-            edgecolor="black",
-            linewidth=0.5,
-            label="Sin dato de humedad",
-        )
 
     for transecto, marcador in marcadores.items():
         subconjunto = datos[datos["transect-name"] == transecto]
@@ -357,7 +355,7 @@ def graficar_pcoa(coordenadas, metadata, porcentaje_varianza):
         "PCoA (Bray-Curtis) de la composicion microbiana\n"
         "Desierto de Atacama"
     )
-    ax.legend(title="Transecto / dato faltante", loc="best")
+    ax.legend(title="Transecto (forma)", loc="best")
 
     fig.tight_layout()
     fig.savefig(
