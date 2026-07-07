@@ -1,0 +1,5 @@
+variable	mantel_r	p_valor
+humedad_relativa	0.32840583126935174	0.001
+temperatura	0.36894820321252986	0.001
+elevacion	0.4080035136737468	0.001
+combinada (las 3 estandarizadas)	0.4286207660577059	0.001
