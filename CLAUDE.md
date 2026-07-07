@@ -16,7 +16,20 @@ repositorio.
 
 <!-- Reemplaza este bloque con tu información antes del día 2 -->
 
-Soy ecóloga/o microbiana/o. No tengo experiencia previa en
+Soy Rosario Paz Vargas Araya, bióloga marina y candidata a doctora en
+Ecología Integrativa (Universidad Mayor, Santiago, Chile), en cotutela
+con la Universitat de les Illes Balears (UIB), España.
+
+Investigo respuestas de comunidades microbianas a la contaminación por
+PFAS (PFOS y PFOA) en ecosistemas de agua dulce antárticos, patagónicos
+y mediterráneos. Trabajo en el Centro GEMA (Genómica, Ecología y Medio
+Ambiente), donde también soy encargada de laboratorio.
+
+**Métodos que uso:** secuenciación de amplicones, metatranscriptómica,
+experimentos ecotoxicológicos.
+**Disciplinas base:** biología marina, limnología, ecotoxicología,
+ecología molecular.
+**Experiencia de campo:** Antártica y Patagonia (expediciones ECA 58, 59 y 60). No tengo experiencia previa en
 programación ni en Python. Tengo conocimientos básicos de
 estadística (regresión, correlación) y de ecología de comunidades.
 Necesito que me expliques los resultados en lenguaje biológico
@@ -210,6 +223,10 @@ cada prompt.
    de mayor a menor R².
 6. Avisa si n < 10 por grupo — las permutaciones pueden ser
    insuficientes.
+7. Corre `betadisper` + `permutest` junto con la PERMANOVA. Si la
+   dispersión es significativa, advierte que el resultado de adonis2
+   puede reflejar heterogeneidad de varianza, no diferencia de
+   composición. Reporta ambos.
 
 ### Cuando revises resultados
 
@@ -227,6 +244,33 @@ cada prompt.
 5. Resume el resultado en máximo dos oraciones en lenguaje
    biológico, no estadístico.
 
+### Cuando visualices composición taxonómica
+
+**Trigger:** "barplot", "composición taxonómica", "abundancia relativa
+por taxón", "top taxa"
+
+1. Aglomera al rango pedido (phylum, género, etc.) antes de graficar.
+2. Convierte a abundancia relativa; muestra top-N taxa y agrupa el resto
+   como "Other".
+3. Recuerda que estos gráficos son descriptivos, no una prueba
+   estadística — no infieras diferencias significativas de un barplot.
+   
+### Control de versiones (git)
+
+**Trigger:** siempre que crees, modifiques o ejecutes un archivo
+
+1. Después de crear o modificar cualquier archivo, corre `git add <archivo>`
+   y luego `git commit`. No acumules cambios sin registrar.
+2. Escribe mensajes de commit descriptivos en presente y en español:
+   "agrega cálculo de Shannon", "corrige filtro de prevalencia".
+   Evita mensajes genéricos como "update" o "cambios".
+3. Un commit por unidad lógica de trabajo (un análisis, una corrección),
+   no un commit gigante con todo mezclado.
+4. Antes de commitear, muéstrame `git status` y `git diff --staged` para
+   que confirme qué entra. No hagas `git add .` a ciegas.
+5. Nunca ejecutes `git push`, `git reset --hard`, `git rebase` ni fuerces
+   historial sin que yo lo pida explícitamente.
+   
 ## ✏️ Notas personales
 
 <!-- Espacio libre para contexto adicional que quieras agregar
