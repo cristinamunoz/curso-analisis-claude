@@ -230,6 +230,65 @@ def graficar_scatter_vs_humedad(diversidad):
     plt.close(fig)
 
 
+def graficar_riqueza_vs_humedad_por_transecto(diversidad):
+    """Scatter de riqueza vs AvgSoilRH, con regresion separada por
+    transecto (Baquedano vs Yungay), para evaluar si la relacion
+    difiere entre ambos gradientes de aridez."""
+    colores = {"Baquedano": "#66c2a5", "Yungay": "#fc8d62"}
+    datos = diversidad.dropna(
+        subset=["average-soil-relative-humidity", "richness"]
+    )
+
+    fig, eje = plt.subplots(figsize=(8, 6))
+    posiciones_texto = {"Baquedano": 0.95, "Yungay": 0.75}
+    for transecto, color in colores.items():
+        subconjunto = datos[datos["transect-name"] == transecto]
+        x = subconjunto["average-soil-relative-humidity"]
+        y = subconjunto["richness"]
+
+        eje.scatter(x, y, color=color, label=transecto)
+        sns.regplot(
+            x=x, y=y, ax=eje, scatter=False,
+            color=color, ci=95,
+        )
+
+        _, _, r_pearson, p_lineal, _ = stats.linregress(x, y)
+        rho, p_spearman = stats.spearmanr(x, y)
+        r2 = r_pearson ** 2
+        n = len(x)
+        texto = (
+            f"{transecto}: R²={r2:.2f}, p={p_lineal:.3f}, "
+            f"Spearman ρ={rho:.2f}, p={p_spearman:.3f}, n={n}"
+        )
+        eje.text(
+            0.05, posiciones_texto[transecto], texto,
+            transform=eje.transAxes, va="top", fontsize=8,
+            color=color,
+        )
+        if r2 < 0.05:
+            print(
+                f"Aviso: R2 muy bajo ({r2:.3f}) para riqueza vs "
+                f"AvgSoilRH en {transecto}. Revisar antes de "
+                "continuar."
+            )
+
+    eje.set_xlabel("Average soil relative humidity (%)")
+    eje.set_ylabel("Richness (número de OTUs)")
+    eje.set_title(
+        "Richness vs average soil relative humidity, by transect"
+    )
+    eje.legend(title="Transect")
+    fig.tight_layout()
+    fig.savefig(
+        f"{CARPETA_SALIDA}/fig_richness_vs_avgsoilrh_by_transect.png",
+        dpi=300,
+    )
+    fig.savefig(
+        f"{CARPETA_SALIDA}/fig_richness_vs_avgsoilrh_by_transect.pdf"
+    )
+    plt.close(fig)
+
+
 def calcular_distancia_bray_curtis(abundancias):
     """Matriz de distancias Bray-Curtis entre muestras."""
     return beta_diversity(
@@ -406,6 +465,7 @@ def main():
 
     graficar_boxplot_por_transecto(diversidad)
     graficar_scatter_vs_humedad(diversidad)
+    graficar_riqueza_vs_humedad_por_transecto(diversidad)
     print(f"\nFiguras guardadas en {CARPETA_SALIDA}/")
 
     tabla_h1_resumen = resumen_shannon_por_transecto(diversidad)
