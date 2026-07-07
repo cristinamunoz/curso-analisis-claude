@@ -365,6 +365,48 @@ def permanova_variables_ambientales(abundancias, metadata):
     return tabla
 
 
+def graficar_r2_permanova(tabla):
+    """Grafico de barras con el R2 de cada variable ambiental,
+    para comparar de un vistazo cuanta varianza composicional
+    explica cada una."""
+    etiquetas = {
+        "humedad_relativa": "Soil relative\nhumidity",
+        "temperatura": "Soil\ntemperature",
+        "elevacion": "Elevation",
+    }
+    datos = tabla.sort_values("R2", ascending=False)
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    colores = sns.color_palette("Set2", n_colors=len(datos))
+    barras = ax.bar(
+        [etiquetas[v] for v in datos["variable"]],
+        datos["R2"],
+        color=colores,
+    )
+
+    for barra, (_, fila) in zip(barras, datos.iterrows()):
+        ax.text(
+            barra.get_x() + barra.get_width() / 2,
+            barra.get_height(),
+            f"p = {fila['p_valor']:.3f}",
+            ha="center", va="bottom",
+        )
+
+    ax.set_ylabel("R² (variance in composition explained)")
+    ax.set_title(
+        "PERMANOVA: variance explained by environmental variables"
+    )
+    ax.set_ylim(0, max(datos["R2"]) * 1.3)
+
+    for ext in ("png", "pdf"):
+        ruta = os.path.join(
+            OUTPUT_DIR, f"fig3_permanova_r2_por_variable.{ext}"
+        )
+        fig.savefig(ruta, dpi=300, bbox_inches="tight")
+        print(f"Guardado: {ruta}")
+    plt.close(fig)
+
+
 def main():
     abundancias, metadata = cargar_datos()
     shannon = calcular_shannon(abundancias)
@@ -379,7 +421,10 @@ def main():
     graficar_pcoa(tabla, resultado_pcoa)
     varianza_explicada_pcoa(resultado_pcoa)
 
-    permanova_variables_ambientales(abundancias, metadata)
+    tabla_permanova = permanova_variables_ambientales(
+        abundancias, metadata
+    )
+    graficar_r2_permanova(tabla_permanova)
 
 
 if __name__ == "__main__":
