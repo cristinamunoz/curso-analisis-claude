@@ -1,10 +1,11 @@
-"""Analisis H1: diversidad Shannon vs humedad relativa del suelo.
+"""Analisis H1-H3: diversidad y composicion del microbioma.
 
-Calcula el indice de Shannon por muestra a partir de la tabla de
-abundancias de OTUs, lo cruza con la metadata ambiental, y evalua
-la correlacion con la humedad relativa promedio del suelo
-(AvgSoilRH), siguiendo el metodo del paper (correlacion de
-Spearman). Ademas ajusta una regresion lineal para el grafico.
+H1: diversidad Shannon vs humedad relativa del suelo (AvgSoilRH).
+H2: composicion de comunidades (Bray-Curtis + PCoA) coloreada por
+el gradiente de AvgSoilRH.
+H3: modelado de la composicion en funcion de variables ambientales
+(humedad, temperatura, elevacion) via PERMANOVA (McArdle y
+Anderson, 999 permutaciones).
 """
 
 import os
@@ -13,9 +14,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy import stats
+from scipy.spatial.distance import pdist, squareform
 
 DATA_DIR = "data"
 OUT_DIR = "outputs"
+N_PERMUTATIONS = 999
+RANDOM_SEED = 0
 
 os.makedirs(OUT_DIR, exist_ok=True)
 
@@ -30,7 +34,8 @@ def shannon_index(counts):
     return -np.sum(proportions * np.log(proportions))
 
 
-def main():
+def load_data():
+    """Carga la tabla de OTUs y la metadata ambiental."""
     abund = pd.read_csv(
         os.path.join(DATA_DIR, "abundancias.tsv"),
         sep="\t",
@@ -40,6 +45,14 @@ def main():
         os.path.join(DATA_DIR, "metadata.tsv"),
         sep="\t",
     )
+    return abund, metadata
+
+
+def run_h1(abund, metadata):
+    """H1: diversidad Shannon vs humedad relativa del suelo."""
+    print("=" * 60)
+    print("H1: diversidad Shannon vs AvgSoilRH")
+    print("=" * 60)
 
     # Un valor de Shannon por muestra (columna de la tabla de OTUs).
     shannon = abund.apply(shannon_index, axis=0)
@@ -201,6 +214,194 @@ def main():
             "\nAVISO: R2 < 0.05, la relacion lineal es muy debil. "
             "Revisar posibles problemas con los datos o el analisis."
         )
+
+
+def bray_curtis_distance(abund):
+    """Matriz de disimilitud Bray-Curtis entre muestras (columnas)."""
+    sample_matrix = abund.T.to_numpy()
+    dist = squareform(pdist(sample_matrix, metric="braycurtis"))
+    return dist, list(abund.columns)
+
+
+def pcoa(dist_matrix):
+    """PCoA clasico (Gower) via doble centrado de la matriz de
+    distancias al cuadrado. Devuelve las coordenadas de las
+    muestras y el porcentaje de varianza explicado por cada eje
+    con autovalor positivo."""
+    n = dist_matrix.shape[0]
+    d2 = dist_matrix ** 2
+    centering = np.eye(n) - np.ones((n, n)) / n
+    gower = -0.5 * centering @ d2 @ centering
+
+    eigvals, eigvecs = np.linalg.eigh(gower)
+    order = np.argsort(eigvals)[::-1]
+    eigvals = eigvals[order]
+    eigvecs = eigvecs[:, order]
+
+    positive = eigvals > 1e-8
+    coords = eigvecs[:, positive] * np.sqrt(eigvals[positive])
+    variance_pct = eigvals[positive] / eigvals[positive].sum() * 100
+    return coords, variance_pct
+
+
+def permanova(dist_matrix, predictor, n_perm=N_PERMUTATIONS, seed=0):
+    """PERMANOVA univariado (McArdle y Anderson, 2001) para un
+    predictor ambiental continuo, evaluado sobre una matriz de
+    distancias. Devuelve el pseudo-F observado, el R2 y el
+    p-valor obtenido por permutacion."""
+    n = dist_matrix.shape[0]
+    d2 = dist_matrix ** 2
+    centering = np.eye(n) - np.ones((n, n)) / n
+    gower = -0.5 * centering @ d2 @ centering
+    ss_total = np.trace(gower)
+
+    def pseudo_f(values):
+        design = np.column_stack([np.ones(n), values])
+        xtx_inv = np.linalg.inv(design.T @ design)
+        hat = design @ xtx_inv @ design.T
+        ss_model = np.trace(hat @ gower)
+        ss_resid = ss_total - ss_model
+        df_model = 1
+        df_resid = n - 2
+        f_stat = (ss_model / df_model) / (ss_resid / df_resid)
+        r2 = ss_model / ss_total
+        return f_stat, r2
+
+    f_obs, r2_obs = pseudo_f(predictor)
+
+    rng = np.random.default_rng(seed)
+    count_ge = 0
+    for _ in range(n_perm):
+        permuted = rng.permutation(predictor)
+        f_perm, _ = pseudo_f(permuted)
+        if f_perm >= f_obs - 1e-12:
+            count_ge += 1
+    p_value = (count_ge + 1) / (n_perm + 1)
+
+    return f_obs, r2_obs, p_value
+
+
+def run_h2_h3(abund, metadata):
+    """H2: PCoA Bray-Curtis coloreado por AvgSoilRH.
+    H3: PERMANOVA univariado de humedad, temperatura y elevacion.
+    """
+    print("\n" + "=" * 60)
+    print("H2/H3: composicion (Bray-Curtis) vs variables ambientales")
+    print("=" * 60)
+
+    dist, sample_ids = bray_curtis_distance(abund)
+    print("Numero de muestras en la matriz Bray-Curtis:", len(sample_ids))
+
+    coords, variance_pct = pcoa(dist)
+    pc1_pct, pc2_pct = variance_pct[0], variance_pct[1]
+    print(f"\nVarianza explicada: PC1 = {pc1_pct:.2f}%, "
+          f"PC2 = {pc2_pct:.2f}%")
+
+    variance_table = pd.DataFrame(
+        [
+            {"eje": "PC1", "porcentaje_varianza": pc1_pct},
+            {"eje": "PC2", "porcentaje_varianza": pc2_pct},
+        ]
+    )
+    variance_table.to_csv(
+        os.path.join(OUT_DIR, "h2_varianza_explicada_pcoa.tsv"),
+        sep="\t",
+        index=False,
+    )
+
+    # Humedad relativa de suelo alineada al orden de sample_ids,
+    # para colorear el PCoA con un gradiente continuo (viridis).
+    meta_indexed = metadata.set_index("sample-id")
+    avgsoilrh = meta_indexed.reindex(sample_ids)[
+        "average-soil-relative-humidity"
+    ]
+    has_rh = avgsoilrh.notna().to_numpy()
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    # Muestras sin dato de humedad: puntos grises huecos.
+    ax.scatter(
+        coords[~has_rh, 0],
+        coords[~has_rh, 1],
+        facecolors="none",
+        edgecolors="gray",
+        label="No AvgSoilRH data",
+        zorder=2,
+    )
+    scatter = ax.scatter(
+        coords[has_rh, 0],
+        coords[has_rh, 1],
+        c=avgsoilrh.to_numpy()[has_rh],
+        cmap="viridis",
+        edgecolor="white",
+        label="Samples",
+        zorder=3,
+    )
+    cbar = fig.colorbar(scatter, ax=ax)
+    cbar.set_label("Average soil relative humidity (%)")
+    ax.set_xlabel(f"PC1 ({pc1_pct:.1f}% variance explained)")
+    ax.set_ylabel(f"PC2 ({pc2_pct:.1f}% variance explained)")
+    ax.set_title("PCoA of Bray-Curtis dissimilarity")
+    ax.legend(loc="best")
+    fig.tight_layout()
+    fig.savefig(
+        os.path.join(OUT_DIR, "fig2_pcoa_braycurtis.png"), dpi=300
+    )
+    fig.savefig(os.path.join(OUT_DIR, "fig2_pcoa_braycurtis.pdf"))
+    plt.close(fig)
+
+    # H3: PERMANOVA univariado por variable ambiental.
+    variables = [
+        ("humedad_relativa", "average-soil-relative-humidity"),
+        ("temperatura", "average-soil-temperature"),
+        ("elevacion", "elevation"),
+    ]
+    results = []
+    for label, column in variables:
+        values = meta_indexed.reindex(sample_ids)[column]
+        valid = values.notna().to_numpy()
+        sub_idx = np.where(valid)[0]
+        sub_dist = dist[np.ix_(sub_idx, sub_idx)]
+        sub_values = values.to_numpy()[sub_idx].astype(float)
+
+        if len(sub_idx) < 10:
+            print(
+                f"AVISO: n < 10 para {label}, las permutaciones "
+                "pueden ser insuficientes."
+            )
+
+        f_stat, r2, p_value = permanova(
+            sub_dist, sub_values, seed=RANDOM_SEED
+        )
+        results.append(
+            {
+                "variable": label,
+                "columna_original": column,
+                "F": f_stat,
+                "R2": r2,
+                "p_valor": p_value,
+                "n_permutaciones": N_PERMUTATIONS,
+                "n": len(sub_idx),
+            }
+        )
+
+    results_df = pd.DataFrame(results).sort_values(
+        "R2", ascending=False
+    ).reset_index(drop=True)
+
+    print("\nPERMANOVA univariado (ordenado por R2 descendente):")
+    print(results_df)
+
+    results_df.to_csv(
+        os.path.join(OUT_DIR, "h3_permanova_variables_ambientales.tsv"),
+        sep="\t",
+        index=False,
+    )
+
+
+def main():
+    abund, metadata = load_data()
+    run_h1(abund, metadata)
+    run_h2_h3(abund, metadata)
 
 
 if __name__ == "__main__":
